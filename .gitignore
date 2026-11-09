@@ -4,6 +4,11 @@
 _preview_check.html
 前端温馨化改造预览.html
 
+# 签名密钥（绝对不可提交到公开仓库）
+*.keystore
+*.jks
+signing-key-info.txt
+
 # 系统文件
 .DS_Store
 Thumbs.db
