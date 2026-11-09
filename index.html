@@ -1,0 +1,2766 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F7F3EC">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="猫事">
+<meta name="description" content="零依赖、本地优先的养猫管理工具：待办、健康、记账、目标、知识、相册，数据只存在这台设备上。">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>猫事 · 养猫管理</title>
+<style>
+/* ============ 设计令牌 ============ */
+:root{
+  --bg:#F7F3EC;
+  --bg-grad:radial-gradient(120% 80% 120% 0%,#FBF7F1 0%,#F5F0E7 55%,#EFE8DC 100%);
+  --surface:#FFFFFF;
+  --surface-2:#F2ECE3;
+  --surface-3:#EAE2D6;
+  --ink:#2A2520;
+  --ink-2:#6C6257;
+  --ink-3:#9C9186;
+  --line:#E7DED1;
+  --line-2:#D9CEBE;
+  --brand:#C4622D;
+  --brand-dark:#A34E20;
+  --brand-soft:#FBEADF;
+  --brand-ink:#FFFFFF;
+  --ok:#4E7A66;
+  --ok-soft:#E3EDE7;
+  --warn:#B0801F;
+  --warn-soft:#F8EED6;
+  --danger:#B23A2F;
+  --danger-soft:#FAE7E4;
+  --r-lg:18px;
+  --r-md:14px;
+  --r-sm:10px;
+  --shadow-1:0 1px 2px rgba(58,44,30,.06), 0 2px 8px rgba(58,44,30,.05);
+  --shadow-2:0 8px 28px rgba(58,44,30,.14);
+  --fs-xl:26px;
+  --fs-lg:19px;
+  --fs-md:16px;
+  --fs-sm:14px;
+  --fs-xs:12.5px;
+  --tabh:64px;
+}
+html[data-mode="dark"]{
+    --bg:#171412;
+    --bg-grad:radial-gradient(120% 80% 120% 0%,#1E1A17 0%,#191512 55%,#141110 100%);
+    --surface:#221E1B;
+    --surface-2:#2A2521;
+    --surface-3:#332C27;
+    --ink:#F2ECE4;
+    --ink-2:#B6AAA0;
+    --ink-3:#877C72;
+    --line:#332C27;
+    --line-2:#403832;
+    --brand:#E08454;
+    --brand-dark:#F09868;
+    --brand-soft:#3A2A20;
+    --brand-ink:#221E1B;
+    --ok:#7FB79C;
+    --ok-soft:#22302A;
+    --warn:#D8AE57;
+    --warn-soft:#332B1B;
+    --danger:#E3796C;
+    --danger-soft:#3A2421;
+    --shadow-1:0 1px 2px rgba(0,0,0,.4), 0 2px 10px rgba(0,0,0,.3);
+    --shadow-2:0 10px 32px rgba(0,0,0,.5);
+}
+
+/* ============ 主题配色（浅色 / 深色各一套） ============ */
+html[data-mode="light"][data-theme="green"]{--brand:#3E7A5E;--brand-dark:#2F6149;--brand-soft:#E4EFE9;--brand-ink:#FFFFFF}
+html[data-mode="dark"][data-theme="green"]{--brand:#6FBF97;--brand-dark:#8ACFAD;--brand-soft:#1E2E27;--brand-ink:#171412}
+html[data-mode="light"][data-theme="blue"]{--brand:#3F6EA8;--brand-dark:#335B8C;--brand-soft:#E3EDF7;--brand-ink:#FFFFFF}
+html[data-mode="dark"][data-theme="blue"]{--brand:#7FA9DE;--brand-dark:#9CBFE8;--brand-soft:#1D2836;--brand-ink:#171412}
+html[data-mode="light"][data-theme="rose"]{--brand:#A24E86;--brand-dark:#87406F;--brand-soft:#F5E6F0;--brand-ink:#FFFFFF}
+html[data-mode="dark"][data-theme="rose"]{--brand:#D48FBC;--brand-dark:#E4A9CF;--brand-soft:#2E1E28;--brand-ink:#171412}
+html[data-mode="light"][data-theme="amber"]{--brand:#A9761C;--brand-dark:#8A5F14;--brand-soft:#F6EEDA;--brand-ink:#FFFFFF}
+html[data-mode="dark"][data-theme="amber"]{--brand:#D9B25E;--brand-dark:#E5C579;--brand-soft:#302818;--brand-ink:#171412}
+
+/* ============ 字号档位 ============ */
+html[data-fs="sm"]{--fs-xl:23px;--fs-lg:17px;--fs-md:14.5px;--fs-sm:13px;--fs-xs:11.5px}
+html[data-fs="lg"]{--fs-xl:29px;--fs-lg:21px;--fs-md:18px;--fs-sm:15.5px;--fs-xs:14px}
+
+/* ============ 基础 ============ */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);
+  background-image:var(--bg-grad);
+  background-attachment:fixed;
+  color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","HarmonyOS Sans SC","Noto Sans SC","Microsoft YaHei",sans-serif;
+  font-size:var(--fs-md);
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior-y:none;
+}
+input,select,textarea,button{font:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+a{color:var(--brand);text-decoration:none}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+svg{width:20px;height:20px;flex:none;display:block}
+::-webkit-scrollbar{width:0;height:0}
+
+/* ============ 布局 ============ */
+.app{
+  max-width:560px;margin:0 auto;min-height:100dvh;
+  padding:0 16px calc(var(--tabh) + env(safe-area-inset-bottom) + 20px);
+  position:relative;
+}
+.topbar{
+  position:sticky;top:0;z-index:30;
+  margin:0 -16px;padding:calc(env(safe-area-inset-top) + 14px) 16px 12px;
+  background:color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter:saturate(1.6) blur(14px);
+  -webkit-backdrop-filter:saturate(1.6) blur(14px);
+  display:flex;align-items:center;gap:12px;
+  border-bottom:1px solid transparent;
+  transition:border-color .2s;
+}
+.topbar.scrolled{border-bottom-color:var(--line)}
+.topbar h1{
+  font-size:var(--fs-lg);margin:0;font-weight:700;letter-spacing:-.01em;
+  flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.topbar .sub{font-size:var(--fs-xs);color:var(--ink-3);font-weight:500;margin-top:1px}
+.iconbtn{
+  width:38px;height:38px;border-radius:50%;display:grid;place-items:center;
+  color:var(--ink-2);flex:none;transition:background .15s,color .15s;
+}
+.iconbtn:active{background:var(--surface-2)}
+.iconbtn.primary{background:var(--brand);color:var(--brand-ink);box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 16%,transparent),var(--shadow-1)}
+.iconbtn.primary:active{background:var(--brand-dark)}
+/* 顶栏宠物胶囊按钮（与设置按钮同款设计，点击进入档案） */
+.catpill{
+  display:flex;align-items:center;gap:8px;max-width:68%;min-width:0;
+  padding:4px 13px 4px 5px;border-radius:999px;
+  background:var(--brand);color:var(--brand-ink);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 16%,transparent),var(--shadow-1);
+  transition:transform .12s,filter .15s;
+}
+.catpill:active{transform:scale(.97);filter:brightness(.95)}
+.catpill .cp-av{width:28px;height:28px;border-radius:50%;flex:none;overflow:hidden;display:grid;place-items:center;background:rgba(255,255,255,.24)}
+.catpill .cp-av img{width:100%;height:100%;object-fit:cover;display:block}
+.catpill .cp-av svg{width:16px;height:16px}
+.catpill .cp-tx{display:flex;flex-direction:column;align-items:flex-start;min-width:0;line-height:1.18;text-align:left}
+.catpill .cp-n{font-weight:700;font-size:14px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.catpill .cp-b{font-size:10.5px;font-weight:600;opacity:.86;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.view{animation:fade .22s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  .view{animation:none}
+  *{transition-duration:.01ms !important;animation-duration:.01ms !important}
+}
+.sec{margin:22px 0 10px;display:flex;align-items:baseline;gap:8px}
+.sec h2{font-size:var(--fs-sm);margin:0;font-weight:700;color:var(--ink-2);letter-spacing:.04em}
+.sec .more{margin-left:auto;font-size:var(--fs-xs);color:var(--ink-3)}
+.muted{color:var(--ink-3)}
+.small{font-size:var(--fs-xs)}
+.dim{color:var(--ink-2)}
+
+/* ============ 卡片 ============ */
+.card{
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-lg);box-shadow:var(--shadow-1);
+  padding:16px;margin-bottom:12px;
+}
+.card.tight{padding:12px}
+.card.flat{box-shadow:none;background:var(--surface-2);border-color:transparent}
+.list{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:var(--shadow-1);overflow:hidden;
+}
+.row{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;
+  border-bottom:1px solid var(--line);background:var(--surface);
+  transition:background .12s;width:100%;text-align:left;
+}
+.row:last-child{border-bottom:none}
+.row:active{background:var(--surface-2)}
+.row .grow{flex:1;min-width:0}
+.row .t{font-weight:600;font-size:var(--fs-md);display:flex;align-items:center;gap:6px}
+.row .d{font-size:var(--fs-xs);color:var(--ink-3);margin-top:2px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .chev{color:var(--ink-3);flex:none;opacity:.7}
+.avatar{
+  width:46px;height:46px;border-radius:14px;flex:none;object-fit:cover;
+  background:var(--brand-soft);display:grid;place-items:center;color:var(--brand);
+  font-weight:700;font-size:18px;overflow:hidden;
+}
+.avatar.lg{width:76px;height:76px;border-radius:22px;font-size:28px}
+.avatar > img{width:100%;height:100%;object-fit:cover;display:block}
+.avatar > svg{width:24px;height:24px}
+
+/* ============ 按钮 ============ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 18px;border-radius:999px;font-weight:600;font-size:var(--fs-sm);
+  background:var(--surface-2);color:var(--ink);border:1px solid transparent;
+  transition:transform .1s,filter .15s,background .15s;
+}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--brand);color:var(--brand-ink);box-shadow:var(--shadow-1)}
+.btn.ghost{background:transparent;border-color:var(--line-2);color:var(--ink-2)}
+.btn.danger{background:var(--danger-soft);color:var(--danger)}
+.btn.block{width:100%}
+.btn.sm{padding:8px 14px;font-size:var(--fs-xs)}
+.btn:disabled{opacity:.45;pointer-events:none}
+.btnrow{display:flex;gap:10px;margin-top:12px}
+.btnrow .btn{flex:1}
+
+/* ============ 表单 ============ */
+.field{margin-bottom:14px}
+.field > label{display:block;font-size:var(--fs-xs);font-weight:600;color:var(--ink-2);margin-bottom:6px}
+.input,.select,.textarea{
+  width:100%;padding:12px 14px;border-radius:var(--r-md);
+  background:var(--surface-2);border:1px solid var(--line);
+  font-size:var(--fs-md);transition:border-color .15s,background .15s;
+}
+.input:focus,.select:focus,.textarea:focus{
+  outline:none;border-color:var(--brand);background:var(--surface);
+}
+.textarea{resize:vertical;min-height:88px;line-height:1.6}
+.select{appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239C9186' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;padding-right:38px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.switch{display:flex;align-items:center;gap:12px;padding:10px 0}
+.switch input{width:44px;height:26px;appearance:none;background:var(--line-2);border-radius:99px;position:relative;transition:background .18s;flex:none}
+.switch input::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .18s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.switch input:checked{background:var(--brand)}
+.switch input:checked::after{transform:translateX(18px)}
+
+/* ============ 胶囊 / 标签 ============ */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  padding:7px 14px;border-radius:999px;font-size:var(--fs-xs);font-weight:600;
+  background:var(--surface-2);color:var(--ink-2);border:1px solid transparent;
+  transition:background .15s,color .15s;
+}
+.chip.on{background:var(--brand);color:var(--brand-ink)}
+.tag{
+  display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;
+  font-size:11px;font-weight:700;letter-spacing:.02em;
+  background:var(--surface-2);color:var(--ink-2);white-space:nowrap;
+}
+.tag.ok{background:var(--ok-soft);color:var(--ok)}
+.tag.warn{background:var(--warn-soft);color:var(--warn)}
+.tag.danger{background:var(--danger-soft);color:var(--danger)}
+.tag.brand{background:var(--brand-soft);color:var(--brand)}
+
+/* ============ 统计 ============ */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.stat{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
+  padding:12px;box-shadow:var(--shadow-1);text-align:left;
+}
+.stat .v{font-size:20px;font-weight:750;letter-spacing:-.02em;line-height:1.2}
+.stat .k{font-size:11px;color:var(--ink-3);font-weight:600;margin-top:3px}
+.stat .v small{font-size:12px;font-weight:600;color:var(--ink-3);margin-left:2px}
+
+/* ============ 进度条 ============ */
+.bar{height:8px;border-radius:99px;background:var(--surface-3);overflow:hidden;margin-top:10px}
+.bar > i{display:block;height:100%;border-radius:99px;background:var(--brand);transition:width .4s cubic-bezier(.2,.8,.2,1)}
+.bar.ok > i{background:var(--ok)}
+.bar.warn > i{background:var(--warn)}
+.bar.danger > i{background:var(--danger)}
+
+/* ============ 待办项 ============ */
+.check{
+  width:24px;height:24px;border-radius:50%;border:2px solid var(--line-2);
+  flex:none;display:grid;place-items:center;color:transparent;transition:all .15s;
+}
+.check.done{background:var(--ok);border-color:var(--ok);color:#fff}
+.task .t{transition:color .15s}
+.task.done .t{color:var(--ink-3);text-decoration:line-through;text-decoration-color:var(--line-2)}
+
+/* ============ 底部标签栏 ============ */
+.tabbar{
+  position:fixed;left:50%;transform:translateX(-50%);
+  bottom:calc(env(safe-area-inset-bottom) + 10px);
+  width:min(560px, calc(100vw - 24px));
+  height:var(--tabh);z-index:40;
+  background:color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter:saturate(1.8) blur(18px);
+  -webkit-backdrop-filter:saturate(1.8) blur(18px);
+  border:1px solid var(--line);border-radius:22px;
+  box-shadow:var(--shadow-2);
+  display:grid;grid-template-columns:repeat(5,1fr);
+  padding:0 6px;
+}
+.tab{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  color:var(--ink-3);font-size:10.5px;font-weight:650;border-radius:16px;
+  transition:color .15s;position:relative;
+}
+.tab.on{color:var(--brand)}
+.tab svg{width:23px;height:23px}
+.tab.on::before{
+  content:"";position:absolute;top:6px;width:26px;height:26px;border-radius:9px;
+  background:var(--brand-soft);z-index:-1;
+}
+
+/* ============ 底部弹层 ============ */
+.mask{
+  position:fixed;inset:0;background:rgba(30,22,14,.42);z-index:50;
+  opacity:0;pointer-events:none;transition:opacity .24s;
+  backdrop-filter:blur(2px);
+}
+.mask.open{opacity:1;pointer-events:auto}
+.sheet{
+  position:fixed;left:50%;transform:translate(-50%,102%);
+  bottom:0;width:min(560px,100vw);z-index:51;
+  background:var(--surface);border-radius:24px 24px 0 0;
+  box-shadow:var(--shadow-2);
+  max-height:92dvh;display:flex;flex-direction:column;
+  transition:transform .3s cubic-bezier(.2,.9,.25,1);
+  padding-bottom:calc(env(safe-area-inset-bottom) + 16px);
+}
+.sheet.open{transform:translate(-50%,0)}
+.sheet-head{
+  display:flex;align-items:center;gap:10px;padding:18px 20px 10px;flex:none;
+}
+.sheet-head h3{margin:0;font-size:var(--fs-lg);flex:1;font-weight:700}
+.sheet-body{overflow-y:auto;padding:0 20px 20px;-webkit-overflow-scrolling:touch}
+.sheet-foot{padding:12px 20px 4px;flex:none;display:flex;gap:10px}
+.sheet-foot .btn{flex:1}
+.grabber{width:38px;height:4px;border-radius:99px;background:var(--line-2);margin:10px auto -6px}
+
+/* ============ Toast ============ */
+.toast{
+  position:fixed;left:50%;bottom:calc(var(--tabh) + env(safe-area-inset-bottom) + 26px);
+  transform:translate(-50%,14px);z-index:80;
+  background:var(--ink);color:var(--bg);
+  padding:10px 18px;border-radius:999px;font-size:var(--fs-sm);font-weight:600;
+  opacity:0;pointer-events:none;transition:all .24s;max-width:80vw;text-align:center;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ============ 空状态 ============ */
+.empty{
+  text-align:center;padding:40px 24px;color:var(--ink-3);
+}
+.empty .ico{
+  width:64px;height:64px;margin:0 auto 14px;border-radius:20px;
+  background:var(--surface-2);display:grid;place-items:center;color:var(--ink-3);
+}
+.empty .h{font-weight:650;color:var(--ink-2);font-size:var(--fs-md);margin-bottom:4px}
+.empty p{margin:0 0 16px;font-size:var(--fs-sm)}
+/* ============ 分段控件 ============ */
+.seg{
+  display:flex;gap:4px;background:var(--surface-2);padding:4px;border-radius:999px;
+  margin-bottom:14px;overflow-x:auto;
+}
+.seg button{
+  flex:1;min-width:max-content;padding:8px 12px;border-radius:999px;
+  font-size:var(--fs-xs);font-weight:650;color:var(--ink-2);white-space:nowrap;
+  transition:background .15s,color .15s;
+}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-1)}
+
+/* ============ 时间轴 ============ */
+.tl{position:relative;padding-left:26px}
+.tl::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:var(--line);border-radius:2px}
+.tl .node{position:relative;margin-bottom:14px}
+.tl .node::before{
+  content:"";position:absolute;left:-23px;top:6px;width:10px;height:10px;border-radius:50%;
+  background:var(--surface);border:2.5px solid var(--line-2);
+}
+.tl .node.ok::before{border-color:var(--ok)}
+.tl .node.warn::before{border-color:var(--warn)}
+.tl .node.danger::before{border-color:var(--danger)}
+.tl .node.brand::before{border-color:var(--brand)}
+.tl .when{font-size:11px;color:var(--ink-3);font-weight:650}
+
+/* ============ 知识卡 ============ */
+.kcard{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:var(--shadow-1);overflow:hidden;margin-bottom:10px;
+}
+.kcard > summary{
+  list-style:none;padding:15px 16px;display:flex;align-items:center;gap:12px;
+  cursor:pointer;font-weight:650;
+}
+.kcard > summary::-webkit-details-marker{display:none}
+.kcard[open] > summary{border-bottom:1px solid var(--line)}
+.kcard .body{padding:14px 16px;font-size:var(--fs-sm);color:var(--ink-2);line-height:1.75}
+.kcard .body p{margin:0 0 10px}
+.kcard .body p:last-child{margin-bottom:0}
+.kcard .body strong{color:var(--ink)}
+.kcard .body ul{margin:0 0 10px;padding-left:18px}
+.kcard .body li{margin-bottom:4px}
+
+/* ============ 相册 ============ */
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pgrid figure{
+  margin:0;position:relative;aspect-ratio:1;border-radius:var(--r-md);overflow:hidden;
+  background:var(--surface-2);box-shadow:var(--shadow-1);
+}
+.pgrid img{width:100%;height:100%;object-fit:cover;display:block}
+.pgrid .cap{
+  position:absolute;left:0;right:0;bottom:0;padding:14px 8px 6px;
+  background:linear-gradient(transparent,rgba(0,0,0,.6));
+  color:#fff;font-size:10.5px;font-weight:600;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.pgrid .del{
+  position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;
+  background:rgba(0,0,0,.5);color:#fff;display:grid;place-items:center;
+}
+.pick{
+  aspect-ratio:1;border-radius:var(--r-md);border:1.5px dashed var(--line-2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  color:var(--ink-3);font-size:11px;font-weight:650;background:var(--surface-2);
+}
+
+/* ============ 条状图 ============ */
+.bars{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.bline{display:flex;align-items:center;gap:10px;font-size:var(--fs-xs)}
+.bline .n{width:58px;flex:none;color:var(--ink-2);font-weight:650}
+.bline .track{flex:1;height:9px;background:var(--surface-3);border-radius:99px;overflow:hidden}
+.bline .track > i{display:block;height:100%;background:var(--brand);border-radius:99px;transition:width .45s cubic-bezier(.2,.8,.2,1)}
+.bline .amt{width:74px;text-align:right;font-weight:700;flex:none}
+
+/* ============ 七日均线/迷你趋势 ============ */
+.spark{width:100%;height:64px;display:block;overflow:visible}
+.spark polyline{fill:none;stroke:var(--brand);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.spark .area{fill:var(--brand);opacity:.10;stroke:none}
+.spark .dot{fill:var(--brand)}
+
+/* ============ 日历脉冲 ============ */
+.heat{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.heat i{
+  aspect-ratio:1;border-radius:6px;background:var(--surface-3);display:block;
+}
+.heat i.l1{background:color-mix(in srgb,var(--ok) 30%,var(--surface-3))}
+.heat i.l2{background:color-mix(in srgb,var(--ok) 58%,var(--surface-3))}
+.heat i.l3{background:color-mix(in srgb,var(--ok) 82%,var(--surface-3))}
+.heat i.today{outline:2px solid var(--brand);outline-offset:1px}
+
+/* ============ 吸顶操作条 ============ */
+.fab{
+  position:fixed;right:calc(50% - min(280px,50vw) + 18px);
+  bottom:calc(var(--tabh) + env(safe-area-inset-bottom) + 20px);
+  width:54px;height:54px;border-radius:18px;z-index:39;
+  background:var(--brand);color:var(--brand-ink);
+  display:grid;place-items:center;box-shadow:var(--shadow-2);
+  transition:transform .12s;
+}
+.fab:active{transform:scale(.93)}
+@media (max-width:596px){.fab{right:18px}}
+
+/* ============ 顶部概览 ============ */
+.hero{
+  border-radius:var(--r-lg);overflow:hidden;position:relative;
+  background:linear-gradient(150deg,var(--brand) 0%,var(--brand-dark) 100%);
+  color:#fff;padding:18px;margin-bottom:16px;box-shadow:var(--shadow-2);
+}
+.hero .ht{font-size:var(--fs-xs);opacity:.85;font-weight:650;letter-spacing:.05em}
+.hero .hv{font-size:24px;font-weight:750;margin-top:6px;letter-spacing:-.02em}
+.hero .hd{font-size:var(--fs-xs);opacity:.85;margin-top:4px}
+.hero .hrow{display:flex;gap:22px;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.22)}
+.hero .hrow div{font-size:11px;opacity:.85;font-weight:600}
+.hero .hrow b{display:block;font-size:17px;opacity:1;margin-top:2px;font-weight:750}
+
+/* ============ 首页照片背景（自动轮播 + 淡入淡出） ============ */
+.bg-layer{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.bg-layer img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;
+  transition:opacity 1.5s ease;transform:scale(1.05)}
+.bg-layer img.on{opacity:1;animation:bgturn 9s ease-out forwards}
+@keyframes bgturn{from{transform:scale(1.05)}to{transform:scale(1.11)}}
+.bg-layer .scrim{position:absolute;inset:0;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--bg) 76%,transparent) 0%,color-mix(in srgb,var(--bg) 90%,transparent) 60%,color-mix(in srgb,var(--bg) 96%,transparent) 100%)}
+html[data-mode="dark"] .bg-layer .scrim{background:linear-gradient(180deg,rgba(23,20,18,.70) 0%,rgba(23,20,18,.88) 60%,rgba(23,20,18,.95) 100%)}
+@media (prefers-reduced-motion:reduce){.bg-layer img.on{animation:none}}
+
+/* ============ 首页纪念日轮播 ============ */
+.anniv-wrap{position:relative;border-radius:var(--r-lg);overflow:hidden;margin-bottom:16px;
+  background:linear-gradient(150deg,var(--brand-soft) 0%,color-mix(in srgb,var(--brand-soft) 45%,var(--surface)) 100%);
+  border:1px solid var(--line);box-shadow:var(--shadow-1)}
+.anniv-head{display:flex;align-items:center;gap:8px;padding:13px 16px 0}
+.anniv-head .t{font-size:var(--fs-xs);font-weight:700;color:var(--ink-2);letter-spacing:.04em;flex:1}
+.anniv-head .mini{font-size:var(--fs-xs);font-weight:700;color:var(--brand);padding:3px 10px;border-radius:999px;background:color-mix(in srgb,var(--brand) 13%,transparent)}
+.anniv{display:flex;align-items:center;gap:14px;padding:14px 16px;min-height:74px}
+.an-slide{display:none}
+.anniv-stage .an-slide.on{display:flex;animation:fade .45s ease}
+.anniv .an-ico{width:46px;height:46px;border-radius:15px;flex:none;display:grid;place-items:center;color:#fff;box-shadow:var(--shadow-1)}
+.anniv .an-tx{flex:1;min-width:0}
+.anniv .an-t{font-weight:700;font-size:var(--fs-md);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.anniv .an-d{font-size:var(--fs-xs);color:var(--ink-2);margin-top:3px}
+.anniv .an-cd{flex:none;text-align:right}
+.anniv .an-cd .big{font-size:27px;font-weight:750;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
+.anniv .an-cd .unit{font-size:11px;font-weight:650;color:var(--ink-2);margin-top:3px}
+.anniv-dots{display:flex;gap:6px;justify-content:center;padding:0 16px 13px}
+.anniv-dots i{width:6px;height:6px;border-radius:50%;background:var(--line-2);transition:all .25s}
+.anniv-dots i.on{background:var(--brand);width:16px;border-radius:99px}
+
+/* ============ 里程碑时间轴 ============ */
+.ms{position:relative;padding-left:22px}
+.ms::before{content:"";position:absolute;left:6px;top:12px;bottom:12px;width:2px;background:var(--line);border-radius:2px}
+.ms .m{position:relative;display:flex;align-items:center;gap:10px;padding:9px 0}
+.ms .m::before{content:"";position:absolute;left:-21px;top:50%;transform:translateY(-50%);
+  width:12px;height:12px;border-radius:50%;background:var(--surface);border:2.5px solid var(--line-2)}
+.ms .m.done::before{border-color:var(--ok);background:var(--ok)}
+.ms .m .mt{font-weight:650;font-size:var(--fs-sm)}
+.ms .m.done .mt{color:var(--ink-3)}
+
+/* ============ 完成动效 ============ */
+.fx{position:fixed;inset:0;pointer-events:none;z-index:78;overflow:hidden}
+.fx i{position:absolute;width:9px;height:9px;border-radius:2px;
+  will-change:transform,opacity;animation:fxfly 1.05s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes fxfly{
+  0%{transform:translate(0,0) scale(.4) rotate(0);opacity:1}
+  68%{opacity:1}
+  100%{transform:translate(var(--dx),var(--dy)) scale(1) rotate(var(--rot));opacity:0}
+}
+.check.pop{animation:checkpop .45s cubic-bezier(.2,1.6,.4,1)}
+@keyframes checkpop{0%{transform:scale(.35)}55%{transform:scale(1.3)}100%{transform:scale(1)}}
+.celebrate{position:fixed;left:50%;top:34%;transform:translate(-50%,-50%);z-index:79;pointer-events:none;
+  background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:13px 24px;
+  box-shadow:var(--shadow-2);font-weight:750;font-size:var(--fs-md);display:flex;align-items:center;gap:9px;
+  color:var(--ok);animation:celebr .5s cubic-bezier(.2,1.4,.4,1)}
+@keyframes celebr{from{opacity:0;transform:translate(-50%,-50%) scale(.7)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@media (prefers-reduced-motion:reduce){.fx{display:none}.check.pop{animation:none}}
+
+/* ============ 间距刻度（4 / 8 / 12 / 16 / 24） ============ */
+:root{--sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-6:24px}
+
+/* ============ 无障碍 ============ */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+:focus{outline:none}
+:focus-visible{outline:3px solid color-mix(in srgb,var(--brand) 52%,transparent);outline-offset:2px;border-radius:8px}
+/* 触屏点击反馈保留，键盘焦点用独立的焦点环，互不干扰 */
+.row:focus-visible,.btn:focus-visible,.iconbtn:focus-visible,.chip:focus-visible,.pick:focus-visible{outline-offset:1px}
+@media (forced-colors:active){:focus-visible{outline:2px solid Highlight}}
+@media (pointer:coarse){:focus-visible{outline-offset:3px}}
+
+/* ============ 长列表渲染优化（视窗外跳过布局与绘制） ============ */
+.list,.kcard{content-visibility:auto;contain-intrinsic-size:auto 180px}
+.pgrid{content-visibility:auto;contain-intrinsic-size:auto 640px}
+
+/* ============ 骨架屏（异步处理中的占位） ============ */
+.skel{position:relative;overflow:hidden;background:var(--surface-2)}
+.skel::after{content:"";position:absolute;inset:0;transform:translateX(-100%);
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--surface) 75%,transparent),transparent);
+  animation:skelsweep 1.25s ease-in-out infinite}
+@keyframes skelsweep{100%{transform:translateX(100%)}}
+.skel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.skel-grid i{display:block;aspect-ratio:1;border-radius:var(--r-md);background:var(--surface-2);
+  position:relative;overflow:hidden}
+.skel-grid i::after{content:"";position:absolute;inset:0;transform:translateX(-100%);
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--surface) 75%,transparent),transparent);
+  animation:skelsweep 1.25s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.skel::after,.skel-grid i::after{animation:none}}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<div class="mask" id="mask"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="弹层" tabindex="-1"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   猫事 CatCare · 单文件应用
+   阶段一：本地优先。数据落 IndexedDB，模型按可同步设计
+   （id 为 uuid / 带 updatedAt 与 rev / 软删除 deleted / 预留 ownerId 与 shareIds）。
+   ===================================================================== */
+
+/* ---------- 通用工具 ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const app = $('#app'), mask = $('#mask'), sheetEl = $('#sheet'), toastEl = $('#toast');
+
+function uid() {
+  if (crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, m =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+}
+function num(v, d = 0) {
+  const n = Number(v);
+  return isFinite(n) ? n : d;
+}
+/* 金额显示：整数不带小数，非整保留两位 */
+function yuan(v) {
+  const n = Math.round(num(v) * 100) / 100;
+  return Number.isInteger(n) ? String(n) : n.toFixed(2);
+}
+
+/* ---------- 日期 ---------- */
+function d2s(d) {
+  const p = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+function s2d(s) { const [y, m, d] = String(s).split('-').map(Number); return new Date(y, m - 1, d); }
+function today() { return d2s(new Date()); }
+function addDays(s, n) { const d = s2d(s); d.setDate(d.getDate() + n); return d2s(d); }
+function diffDays(a, b) { return Math.round((s2d(b) - s2d(a)) / 86400000); }
+function fmtMD(s) { const d = s2d(s); return `${d.getMonth() + 1}月${d.getDate()}日`; }
+function fmtYMD(s) { const d = s2d(s); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; }
+const WD = ['日', '一', '二', '三', '四', '五', '六'];
+function weekday(s) { return '周' + WD[s2d(s).getDay()]; }
+/* 相对天数文案 */
+function relDay(s) {
+  const n = diffDays(today(), s);
+  if (n === 0) return '今天';
+  if (n === 1) return '明天';
+  if (n === 2) return '后天';
+  if (n === -1) return '昨天';
+  if (n < 0) return `逾期${-n}天`;
+  if (n <= 30) return `${n}天后`;
+  return fmtMD(s);
+}
+/* 由生日算月龄 */
+function ageText(birthday) {
+  if (!birthday) return '';
+  const b = s2d(birthday), t = new Date();
+  let m = (t.getFullYear() - b.getFullYear()) * 12 + (t.getMonth() - b.getMonth());
+  if (t.getDate() < b.getDate()) m--;
+  if (m < 0) m = 0;
+  const y = Math.floor(m / 12);
+  return y >= 1 ? `${y}岁${m % 12 ? (m % 12) + '个月' : ''}` : `${m}个月`;
+}
+
+/* ---------- IndexedDB ---------- */
+const DB_NAME = 'catcare';
+const DB_VER = 1;
+const STORES = ['cats', 'todos', 'health', 'expenses', 'goals', 'knowledge', 'photos'];
+let db = null;
+
+function openDB() {
+  return new Promise((res, rej) => {
+    const req = indexedDB.open(DB_NAME, DB_VER);
+    req.onupgradeneeded = e => {
+      const d = e.target.result;
+      STORES.forEach(s => { if (!d.objectStoreNames.contains(s)) d.createObjectStore(s, { keyPath: 'id' }); });
+      if (!d.objectStoreNames.contains('blobs')) d.createObjectStore('blobs');
+      if (!d.objectStoreNames.contains('kv')) d.createObjectStore('kv');
+    };
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => rej(req.error);
+  });
+}
+function _req(r) {
+  return new Promise((res, rej) => { r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+}
+const idbGetAll = st => _req(db.transaction(st, 'readonly').objectStore(st).getAll());
+const idbGet = (st, k) => _req(db.transaction(st, 'readonly').objectStore(st).get(k));
+/* 写入/删除：以事务完成作为 Promise 结果，保证导入备份等批量写入真正落盘 */
+function idbPut(st, v, k) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(st, 'readwrite');
+    const os = tx.objectStore(st);
+    try { if (st === 'kv' || st === 'blobs') os.put(v, k); else os.put(v); } catch (err) { return rej(err); }
+    let done = false;
+    const fail = () => { if (done) return; done = true; handleDbError(tx.error); rej(tx.error); };
+    tx.oncomplete = () => { done = true; res(true); };
+    tx.onerror = fail;
+    tx.onabort = fail;
+  });
+}
+function idbDel(st, k) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(st, 'readwrite');
+    tx.objectStore(st).delete(k);
+    let done = false;
+    const fail = () => { if (done) return; done = true; handleDbError(tx.error); rej(tx.error); };
+    tx.oncomplete = () => { done = true; res(true); };
+    tx.onerror = fail;
+    tx.onabort = fail;
+  });
+}
+
+/* ---------- 存储错误处理 ---------- */
+/* 统一提示，避免写入失败时静默丢数据 */
+function handleDbError(e) {
+  const name = (e && e.name) || '';
+  if (name === 'QuotaExceededError' || /quota/i.test((e && e.message) || '')) {
+    toast('本地存储空间不足：请到「更多 → 数据备份」导出备份后清理相册照片');
+  } else {
+    toast('数据保存失败，请稍后重试');
+  }
+  console.error('[猫事] 数据库操作失败', e);
+}
+
+/* 内存兜底库：IndexedDB 不可用时（无痕模式 / 被禁用）保证应用仍可运行，数据不落盘 */
+let MEMORY_MODE = false;
+function makeMemoryDB() {
+  const data = {};
+  [...STORES, 'blobs', 'kv'].forEach(s => { data[s] = new Map(); });
+  const keyOf = (st, v, k) => (st === 'kv' || st === 'blobs') ? k : v.id;
+  function mkReq(fn) {
+    const r = {};
+    setTimeout(() => {
+      try { r.result = fn(); r.onsuccess && r.onsuccess({ target: r }); }
+      catch (err) { r.error = err; r.onerror && r.onerror({ target: r }); }
+    }, 0);
+    return r;
+  }
+  function store(st) {
+    return {
+      get: k => mkReq(() => data[st].get(k)),
+      getAll: () => mkReq(() => Array.from(data[st].values())),
+      getAllKeys: () => mkReq(() => Array.from(data[st].keys())),
+      put: (v, k) => { data[st].set(keyOf(st, v, k), v); return mkReq(() => v); },
+      delete: k => { data[st].delete(k); return mkReq(() => undefined); },
+      clear: () => { data[st].clear(); return mkReq(() => undefined); }
+    };
+  }
+  return {
+    transaction(st) {
+      const tx = { error: null, objectStore: () => store(st), oncomplete: null, onerror: null, onabort: null };
+      setTimeout(() => { tx.oncomplete && tx.oncomplete({ target: tx }); }, 0);
+      return tx;
+    }
+  };
+}
+
+/* ---------- 状态 ---------- */
+const S = {
+  cats: [], todos: [], health: [], expenses: [], goals: [], knowledge: [], photos: [],
+  blobs: {}, photoURLs: {}, thumbURLs: {}, settings: {}
+};
+let currentCatId = null;
+
+async function loadAll() {
+  for (const st of STORES) {
+    const rows = await idbGetAll(st);
+    S[st] = rows.filter(r => !r.deleted);
+  }
+  S.settings = (await _req(db.transaction('kv', 'readonly').objectStore('kv').get('settings'))) || {};
+  currentCatId = S.settings.currentCatId || (S.cats[0] && S.cats[0].id) || null;
+}
+async function saveSettings() {
+  S.settings.currentCatId = currentCatId;
+  await db.transaction('kv', 'readwrite').objectStore('kv').put(S.settings, 'settings');
+}
+
+/* ---------- 外观设置（主题色 / 字号 / 深色模式 / 首页背景） ---------- */
+const THEMES = [
+  { v: 'clay', n: '陶土', c: '#C4622D' },
+  { v: 'green', n: '墨绿', c: '#3E7A5E' },
+  { v: 'blue', n: '靛蓝', c: '#3F6EA8' },
+  { v: 'rose', n: '玫紫', c: '#A24E86' },
+  { v: 'amber', n: '琥珀', c: '#A9761C' }
+];
+function applyTheme() {
+  const s = S.settings || {};
+  const mode = s.colorMode || 'system';
+  const dark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const el = document.documentElement;
+  el.dataset.mode = dark ? 'dark' : 'light';
+  el.dataset.theme = s.colorTheme || 'clay';
+  el.dataset.fs = s.fontSize || 'md';
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', dark ? '#171412' : '#F7F3EC');
+}
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  if ((S.settings.colorMode || 'system') === 'system') applyTheme();
+});
+async function setSetting(k, v) { S.settings[k] = v; await saveSettings(); applyTheme(); }
+
+/* ---------- 完成动效 ---------- */
+function burstAt(x, y, n) {
+  const layer = document.createElement('div');
+  layer.className = 'fx';
+  const colors = ['var(--brand)', 'var(--ok)', 'var(--warn)', '#E8B84B', 'var(--brand-dark)'];
+  let html = '';
+  for (let i = 0; i < n; i++) {
+    const ang = Math.random() * Math.PI * 2;
+    const dist = 42 + Math.random() * 108;
+    const dx = Math.cos(ang) * dist, dy = Math.sin(ang) * dist - 46;
+    html += `<i style="left:${x.toFixed(0)}px;top:${y.toFixed(0)}px;background:${colors[i % colors.length]};--dx:${dx.toFixed(1)}px;--dy:${dy.toFixed(1)}px;--rot:${Math.round(Math.random() * 720 - 360)}deg;animation-delay:${(Math.random() * .08).toFixed(2)}s"></i>`;
+  }
+  layer.innerHTML = html;
+  document.body.appendChild(layer);
+  setTimeout(() => layer.remove(), 1500);
+}
+function celebrate(text) {
+  const el = document.createElement('div');
+  el.className = 'celebrate';
+  el.innerHTML = `${icon('check', 'width:20px;height:20px')}<span>${esc(text)}</span>`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1700);
+  burstAt(window.innerWidth / 2, window.innerHeight * .34, 38);
+}
+let bgTimer = null, annivTimer = null, justDoneId = null;
+/* 写入：统一刷新 updatedAt / rev */
+async function save(st, rec) {
+  rec.updatedAt = Date.now();
+  rec.rev = num(rec.rev) + 1;
+  if (!rec.createdAt) rec.createdAt = rec.updatedAt;
+  if (rec.ownerId === undefined) rec.ownerId = null;   // 预留：同步后写账号 id
+  if (rec.shareIds === undefined) rec.shareIds = [];   // 预留：共享给哪些账号
+  await idbPut(st, JSON.parse(JSON.stringify(rec)));
+  const arr = S[st], i = arr.findIndex(x => x.id === rec.id);
+  if (i < 0) arr.push(rec); else arr[i] = rec;
+  return rec;
+}
+function newRec(o) { return Object.assign({ id: uid(), createdAt: Date.now(), updatedAt: Date.now(), rev: 0, deleted: false }, o); }
+async function softDel(st, id) {
+  const r = S[st].find(x => x.id === id);
+  if (!r) return;
+  r.deleted = true;
+  await save(st, r);
+  S[st] = S[st].filter(x => x.id !== id);
+}
+
+/* ---------- 排序 / 查询小工具 ---------- */
+const byDateDesc = (a, b) => String(b.date || '').localeCompare(String(a.date || '')) || num(b.createdAt) - num(a.createdAt);
+const byDateAsc = (a, b) => String(a.date || '').localeCompare(String(b.date || '')) || num(a.createdAt) - num(b.createdAt);
+const curCat = () => S.cats.find(c => c.id === currentCatId) || S.cats[0] || null;
+const ofCat = st => S[st].filter(r => !r.catId || r.catId === currentCatId);
+const catName = id => { const c = S.cats.find(x => x.id === id); return c ? c.name : ''; };
+
+/* ---------- Toast ---------- */
+let toastTimer = null;
+function toast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 1900);
+}
+
+/* ---------- 弹层 ---------- */
+let sheetOnClose = null, sheetPrevFocus = null;
+/* 弹层内可聚焦元素（用于焦点陷阱） */
+function sheetFocusables() {
+  return $$('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])', sheetEl)
+    .filter(el => !el.disabled && el.offsetParent !== null);
+}
+function openSheet(html, onClose) {
+  sheetEl.innerHTML = `<div class="grabber"></div>${html}`;
+  sheetOnClose = onClose || null;
+  sheetPrevFocus = document.activeElement;
+  requestAnimationFrame(() => {
+    mask.classList.add('open'); sheetEl.classList.add('open');
+    sheetEl.focus({ preventScroll: true });
+  });
+}
+function closeSheet() {
+  mask.classList.remove('open');
+  sheetEl.classList.remove('open');
+  if (sheetPrevFocus && document.contains(sheetPrevFocus)) { try { sheetPrevFocus.focus({ preventScroll: true }); } catch (e) {} }
+  sheetPrevFocus = null;
+  if (sheetOnClose) { const f = sheetOnClose; sheetOnClose = null; setTimeout(f, 260); }
+}
+mask.addEventListener('click', closeSheet);
+/* 弹层打开时接管键盘：Esc 关闭，Tab 在弹层内循环 */
+document.addEventListener('keydown', e => {
+  if (!sheetEl.classList.contains('open')) return;
+  if (e.key === 'Escape') { e.preventDefault(); closeSheet(); return; }
+  if (e.key !== 'Tab') return;
+  const f = sheetFocusables();
+  if (!f.length) return;
+  const first = f[0], last = f[f.length - 1], cur = document.activeElement;
+  if (e.shiftKey && (cur === first || cur === sheetEl)) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && cur === last) { e.preventDefault(); first.focus(); }
+});
+
+/* ---------- 确认框 ---------- */
+function confirmBox(title, desc, okText, onOk) {
+  openSheet(`
+    <div class="sheet-head"><h3>${esc(title)}</h3></div>
+    <div class="sheet-body"><p class="dim" style="margin:0">${esc(desc)}</p></div>
+    <div class="sheet-foot">
+      <button class="btn ghost" data-act="close-sheet">取消</button>
+      <button class="btn danger" data-act="confirm-ok">${esc(okText || '确认')}</button>
+    </div>`, null);
+  window.__confirmOk = () => { closeSheet(); setTimeout(onOk, 280); };
+}
+
+/* ---------- 路由 ---------- */
+const routes = {};
+let curRoute = { name: 'home', args: [] };
+function parseHash() {
+  const raw = location.hash.replace(/^#\/?/, '') || 'home';
+  const [name, ...args] = raw.split('/');
+  return { name, args };
+}
+function nav(hash) { if (location.hash === '#' + hash) render(); else location.hash = hash; }
+/* 渲染批处理：同一帧内多次调用只真正重建一次，避免无谓的整页重建 */
+let _renderQueued = false;
+function render() {
+  if (_renderQueued) return;
+  _renderQueued = true;
+  requestAnimationFrame(() => { _renderQueued = false; doRender(); });
+}
+function doRender() {
+  const { name, args } = parseHash();
+  const page = routes[name] || routes.home;
+  curRoute = { name, args };
+  if (bgTimer) { clearInterval(bgTimer); bgTimer = null; }
+  if (annivTimer) { clearInterval(annivTimer); annivTimer = null; }
+  const oldBg = document.getElementById('bgLayer');
+  if (oldBg) oldBg.remove();
+  const top = page.top ? page.top(args) : defaultTop(page.title || '');
+  app.innerHTML = top + `<div class="view">${page.view(args)}</div>` + (page.fab ? page.fab(args) : '') + tabbarHTML(name);
+  document.title = (page.title ? page.title + ' · ' : '') + '猫事';
+  window.scrollTo(0, 0);
+  bindTopbar();
+  if (page.after) page.after(args);
+}
+
+/* ---------- 首页照片背景（自动轮播 + 淡入淡出） ---------- */
+function startHomeBg() {
+  if (S.settings.homeBg === false) return;
+  const list = photosOf().slice(0, 12);
+  if (!list.length) return;
+  const layer = document.createElement('div');
+  layer.className = 'bg-layer';
+  layer.id = 'bgLayer';
+  layer.setAttribute('aria-hidden', 'true');
+  layer.innerHTML = list.map((p, i) =>
+    `<img class="${i === 0 ? 'on' : ''}" src="${S.photoURLs[p.id] || ''}" alt="">`).join('') + '<div class="scrim"></div>';
+  document.body.insertBefore(layer, document.body.firstChild);
+  const imgs = layer.querySelectorAll('img');
+  if (imgs.length < 2) return;
+  let i = 0;
+  bgTimer = setInterval(() => {
+    imgs[i].classList.remove('on');
+    i = (i + 1) % imgs.length;
+    imgs[i].classList.add('on');
+  }, 6500);
+}
+window.addEventListener('hashchange', render);
+/* ===================== 图标（内联 SVG，零依赖） ===================== */
+const ICONS = {
+  home: '<path d="M3 10.4 12 3.2l9 7.2"/><path d="M5.6 9.6V20a1 1 0 0 0 1 1H10v-6h4v6h3.4a1 1 0 0 0 1-1V9.6"/>',
+  todo: '<path d="M9 6.5h11M9 12h11M9 17.5h11"/><path d="M4.2 6.5 5.5 7.8 7.6 5.5M4.2 12 5.5 13.3 7.6 11M4.2 17.5 5.5 18.8 7.6 16.5"/>',
+  heart: '<path d="M12 20.3 4.6 13a4.6 4.6 0 0 1 6.5-6.5l.9.9.9-.9A4.6 4.6 0 1 1 19.4 13z"/>',
+  wallet: '<path d="M3.5 8A2.5 2.5 0 0 1 6 5.5h12A2.5 2.5 0 0 1 20.5 8v8a2.5 2.5 0 0 1-2.5 2.5H6A2.5 2.5 0 0 1 3.5 16z"/><path d="M15.5 12.2h3"/>',
+  grid: '<path d="M4 4.6h6.2v6.2H4zM13.8 4.6H20v6.2h-6.2zM4 13.2h6.2V19.4H4zM13.8 13.2H20V19.4h-6.2z"/>',
+  plus: '<path d="M12 5.2v13.6M5.2 12h13.6"/>',
+  chev: '<path d="M9.5 5.5 16 12l-6.5 6.5"/>',
+  back: '<path d="M14.5 5.5 8 12l6.5 6.5"/>',
+  x: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
+  trash: '<path d="M4 7h16M9.5 7V5.6a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1V7"/><path d="M6.6 7l.8 12a1.5 1.5 0 0 0 1.5 1.4h6.2a1.5 1.5 0 0 0 1.5-1.4L17.4 7"/>',
+  edit: '<path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-3-3L5 17z"/><path d="M13.5 6.5l4 4"/>',
+  camera: '<path d="M4 8.6A1.6 1.6 0 0 1 5.6 7h1.6l1.3-2.1h7l1.3 2.1h1.6A1.6 1.6 0 0 1 20 8.6v8.8A1.6 1.6 0 0 1 18.4 19H5.6A1.6 1.6 0 0 1 4 17.4z"/><circle cx="12" cy="12.8" r="3.1"/>',
+  book: '<path d="M5 4.8A1.8 1.8 0 0 1 6.8 3h11.4v14.4H6.8A1.8 1.8 0 0 0 5 19.2z"/><path d="M5 19.2A1.8 1.8 0 0 0 6.8 21h11.4v-3.6"/>',
+  target: '<circle cx="12" cy="12" r="8.6"/><circle cx="12" cy="12" r="4.4"/><circle cx="12" cy="12" r="1.1"/>',
+  paw: '<circle cx="9.2" cy="8.2" r="2"/><circle cx="14.8" cy="8.2" r="2"/><circle cx="5.6" cy="12.6" r="1.6"/><circle cx="18.4" cy="12.6" r="1.6"/><path d="M12 20.6c-2.4 0-4.4-1.4-4.4-3.2 0-1.9 2.1-3.3 4.4-3.3s4.4 1.4 4.4 3.3c0 1.8-2 3.2-4.4 3.2z"/>',
+  settings: '<circle cx="12" cy="12" r="3"/><path d="M12 2.8l1.3 2.4 2.7-.5.4 2.7 2.4 1.3-1.6 2.2 1.6 2.2-2.4 1.3-.4 2.7-2.7-.5L12 21.2l-1.3-2.4-2.7.5-.4-2.7-2.4-1.3L6.8 13 5.2 10.8l2.4-1.3.4-2.7 2.7.5z"/>',
+  syringe: '<path d="M14.5 3.5 20.5 9.5M17 6l-8.5 8.5M11 9.5 14.5 13"/><path d="M9.5 12 4.6 16.9a1 1 0 0 0 0 1.4l1.1 1.1a1 1 0 0 0 1.4 0L12 14.5"/><path d="M7 15.5l1.8 1.8"/>',
+  scale: '<path d="M4.5 8h15"/><path d="M12 4.2V20"/><path d="M12 4.2 6.6 7.4 12 8.9l5.4-1.5z"/>',
+  pill: '<rect x="3.2" y="8.6" width="17.6" height="6.8" rx="3.4"/><path d="M12 8.6v6.8"/>',
+  stethoscope: '<path d="M6 3.5v5a4 4 0 0 0 8 0v-5"/><path d="M10 12.5v2.6a4.4 4.4 0 0 0 8.8 0V13"/><circle cx="18.8" cy="11" r="1.9"/>',
+  image: '<rect x="3.5" y="4.8" width="17" height="14.4" rx="2.2"/><circle cx="9" cy="10" r="1.6"/><path d="M4.4 17.6 9.6 13l3.2 2.6 3-2.4 4.8 4"/>',
+  search: '<circle cx="11" cy="11" r="6.4"/><path d="M15.8 15.8 20.5 20.5"/>',
+  calendar: '<rect x="3.6" y="5.4" width="16.8" height="15" rx="2.4"/><path d="M3.6 10h16.8M8.4 3.6v3.4M15.6 3.6v3.4"/>',
+  bell: '<path d="M6.4 9.6a5.6 5.6 0 0 1 11.2 0c0 4 1.6 5.4 1.6 5.4H4.8s1.6-1.4 1.6-5.4z"/><path d="M10.2 18.4a2 2 0 0 0 3.6 0"/>',
+  chart: '<path d="M4 20.2h16"/><path d="M7 20.2V11M12 20.2V5.4M17 20.2v-5.6"/>',
+  database: '<ellipse cx="12" cy="6.4" rx="7.4" ry="2.9"/><path d="M4.6 6.4v11.2c0 1.6 3.3 2.9 7.4 2.9s7.4-1.3 7.4-2.9V6.4"/><path d="M4.6 12c0 1.6 3.3 2.9 7.4 2.9s7.4-1.3 7.4-2.9"/>',
+  download: '<path d="M12 3.6v11.2"/><path d="M7.6 10.6 12 15l4.4-4.4"/><path d="M4.4 19.6h15.2"/>',
+  upload: '<path d="M12 15.2V4"/><path d="M7.6 8.4 12 4l4.4 4.4"/><path d="M4.4 19.6h15.2"/>',
+  check: '<path d="M5 12.8 9.6 17.4 19 8"/>',
+  dot: '<circle cx="12" cy="12" r="4"/>',
+  info: '<circle cx="12" cy="12" r="8.6"/><path d="M12 11v5.4M12 7.9v.1"/>',
+  shield: '<path d="M12 3.2 5 6v5.4c0 4.2 2.9 7.6 7 9.4 4.1-1.8 7-5.2 7-9.4V6z"/>',
+  gift: '<path d="M4.4 11h15.2v9H4.4z"/><path d="M4.4 8.2h15.2V11H4.4zM12 8.2V20"/><path d="M12 8.2S10.4 4 8.4 4a2.1 2.1 0 0 0 0 4.2zM12 8.2S13.6 4 15.6 4a2.1 2.1 0 0 1 0 4.2z"/>'
+};
+function icon(n, style = '') {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" style="${style}" aria-hidden="true">${ICONS[n] || ''}</svg>`;
+}
+
+/* ===================== 顶栏 / 标签栏 ===================== */
+/* 顶栏右上角统一入口：外观设置（品牌色实心圆按钮，更醒目） */
+function settingsBtnHTML() {
+  return `<button class="iconbtn primary" data-act="todo-settings" aria-label="设置">${icon('settings')}</button>`;
+}
+function topbar(html, id = 'topbar') {
+  return `<header class="topbar" id="${id}">${html}</header>`;
+}
+function topSimple(title, right = '') {
+  return topbar(`<div class="grow" style="flex:1;min-width:0"><h1>${esc(title)}</h1></div>${right}`);
+}
+function topWithBack(title, right = '') {
+  return topbar(`<button class="iconbtn" data-act="back" aria-label="返回">${icon('back')}</button>
+    <div style="flex:1;min-width:0"><h1>${esc(title)}</h1></div>${right}`);
+}
+/* 顶栏猫咪胶囊按钮：与设置按钮同款设计，点击进入档案 */
+function catSwitcherHTML() {
+  const c = curCat();
+  if (!c) return `<div style="flex:1;min-width:0"><h1>猫事</h1><div class="sub">还没有宠物档案</div></div>`;
+  const av = c.avatarKey && thumbOf(c.avatarKey) ? `<img src="${thumbOf(c.avatarKey)}" alt="">` : icon('paw');
+  const pill = `<button class="catpill" data-act="goto-cat" aria-label="查看档案">
+      <span class="cp-av">${av}</span>
+      <span class="cp-tx"><span class="cp-n">${esc(c.name)}</span><span class="cp-b">${esc(speciesName(c))}${c.breed ? ' · ' + esc(c.breed) : ''}</span></span>
+    </button>`;
+  const sw = S.cats.length > 1
+    ? `<button class="iconbtn" data-act="switch-cat" aria-label="切换宠物" style="width:34px;height:34px;background:var(--surface-2)">${icon('chev', 'width:16px;height:16px;transform:rotate(90deg)')}</button>`
+    : '';
+  return `${pill}${sw}<div style="flex:1"></div>`;
+}
+
+const TABS = [
+  { k: 'home', n: '首页', i: 'home' },
+  { k: 'todo', n: '待办', i: 'todo' },
+  { k: 'health', n: '健康', i: 'heart' },
+  { k: 'expense', n: '记账', i: 'wallet' },
+  { k: 'more', n: '更多', i: 'grid' }
+];
+const TAB_MAP = { cat: 'more', goal: 'more', knowledge: 'more', photo: 'more', settings: 'more', backup: 'more' };
+function tabbarHTML(name) {
+  const on = TAB_MAP[name] || name;
+  return `<nav class="tabbar">${TABS.map(t =>
+    `<a class="tab${on === t.k ? ' on' : ''}" href="#${t.k}">${icon(t.i)}<span>${t.n}</span></a>`
+  ).join('')}</nav>`;
+}
+function bindTopbar() {
+  const tb = $('#topbar');
+  if (!tb) return;
+  const onScroll = () => tb.classList.toggle('scrolled', window.scrollY > 4);
+  window.removeEventListener('scroll', window.__tbScroll || (() => { }));
+  window.__tbScroll = onScroll;
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+}
+
+/* ===================== 通用 UI 片段 ===================== */
+function emptyState(iconName, title, desc, btnText, act) {
+  return `<div class="empty">
+    <div class="ico">${icon(iconName, 'width:30px;height:30px')}</div>
+    <div class="h">${esc(title)}</div><p>${esc(desc)}</p>
+    ${btnText ? `<button class="btn primary" data-act="${act}">${esc(btnText)}</button>` : ''}
+  </div>`;
+}
+function field(label, inner, hint) {
+  return `<div class="field"><label>${esc(label)}</label>${inner}${hint ? `<div class="small muted" style="margin-top:5px">${esc(hint)}</div>` : ''}</div>`;
+}
+function segHTML(name, items, active) {
+  return `<div class="seg">${items.map(it =>
+    `<button data-act="seg" data-seg="${name}" data-val="${it.v}" class="${it.v === active ? 'on' : ''}">${esc(it.n)}</button>`
+  ).join('')}</div>`;
+}
+function sheetHead(title) {
+  return `<div class="sheet-head"><h3>${esc(title)}</h3>
+    <button class="iconbtn" data-act="close-sheet" aria-label="关闭">${icon('x')}</button></div>`;
+}
+/* 统一的新增/编辑弹层：fields 为 HTML，onSave 读 #sheetBody 里的表单 */
+function formSheet(title, bodyHTML, saveText, onSave, onDelete) {
+  openSheet(`${sheetHead(title)}
+    <div class="sheet-body" id="sheetBody">${bodyHTML}</div>
+    <div class="sheet-foot">
+      ${onDelete ? `<button class="btn danger" data-act="sheet-delete">删除</button>` : ''}
+      <button class="btn ghost" data-act="close-sheet">取消</button>
+      <button class="btn primary" data-act="sheet-save">${esc(saveText || '保存')}</button>
+    </div>`, null);
+  window.__sheetSave = onSave;
+  window.__sheetDelete = onDelete || null;
+}
+const fval = id => { const el = $('#' + id); return el ? el.value.trim() : ''; };
+const fchk = id => { const el = $('#' + id); return el ? !!el.checked : false; };
+function fnum(id) { const v = fval(id); return v === '' ? null : Number(v); }
+
+/* ===================== 全局事件代理 ===================== */
+/* 统一分发入口：鼠标点击 / 键盘触发共用同一套逻辑 */
+function dispatchAct(el, e) {
+  const act = el.dataset.act;
+  const A = window.__actions || {};
+  if (A[act]) { e.preventDefault(); A[act](el, e); return; }
+  switch (act) {
+    case 'back':
+      e.preventDefault();
+      if (history.length > 1) history.back(); else nav('/home');
+      break;
+    case 'close-sheet': closeSheet(); break;
+    case 'confirm-ok': window.__confirmOk && window.__confirmOk(); break;
+    case 'sheet-save': window.__sheetSave && window.__sheetSave(); break;
+    case 'sheet-delete': window.__sheetDelete && window.__sheetDelete(); break;
+  }
+}
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  dispatchAct(el, e);
+});
+/* 键盘可达：非原生表单控件上的 data-act，用 Enter / 空格触发 */
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
+  const t = e.target;
+  if (!t || !t.closest) return;
+  if (/^(BUTTON|A|INPUT|SELECT|TEXTAREA|SUMMARY)$/.test(t.tagName)) return; // 原生元素自带行为
+  const el = t.closest('[data-act]');
+  if (!el) return;
+  e.preventDefault();
+  el.click();
+});
+/* ===================== 动作注册表（全局） ===================== */
+const ACT = {};
+
+/* ===================== 模块一：每日待办 ===================== */
+const REPEATS = [{ v: 'daily', n: '每天' }, { v: 'weekly', n: '每周' }, { v: 'monthly', n: '每月' }, { v: 'once', n: '单次' }];
+function repeatText(t) {
+  if (t.repeat === 'weekly') return '每周' + (t.weekdays || []).map(d => WD[d]).join('、');
+  if (t.repeat === 'monthly') return `每月${num(t.monthDay, 1)}日`;
+  if (t.repeat === 'once') return `单次 · ${t.date ? fmtMD(t.date) : '未设日期'}`;
+  return '每天';
+}
+function isDueOn(t, d) {
+  if (t.repeat === 'once') return t.date === d;
+  if (t.repeat === 'weekly') return (t.weekdays || []).includes(s2d(d).getDay());
+  if (t.repeat === 'monthly') return num(t.monthDay, 1) === s2d(d).getDate();
+  return true;
+}
+const isDoneOn = (t, d) => !!(t.log && t.log[d]);
+const isMilestone = t => t.kind === 'milestone';
+const allTodos = () => S.todos.filter(t => t.catId === currentCatId && !isMilestone(t));
+const allMilestones = () => S.todos.filter(t => t.catId === currentCatId && isMilestone(t));
+const todoTimes = t => (t.times && t.times.length) ? t.times : (t.time ? [t.time] : []);
+function dueToday() { return allTodos().filter(t => isDueOn(t, today())); }
+/* 连续全清天数：从今天往前推，直到某天有未完成项 */
+function streakDays() {
+  const list = allTodos();
+  if (!list.length) return 0;
+  let n = 0, d = today();
+  for (let i = 0; i < 400; i++) {
+    const due = list.filter(t => isDueOn(t, d));
+    if (!due.length) { d = addDays(d, -1); continue; }
+    if (due.every(t => isDoneOn(t, d))) { n++; d = addDays(d, -1); } else break;
+  }
+  return n;
+}
+
+routes.todo = {
+  title: '每日待办',
+  top: () => topbar(`${catSwitcherHTML()}${settingsBtnHTML()}`),
+  view: () => {
+    const list = dueToday();
+    const done = list.filter(t => isDoneOn(t, today()));
+    const pct = list.length ? Math.round(done.length / list.length * 100) : 0;
+    const st = S.settings.todoFilter || 'today';
+    let rows = [];
+    if (st === 'today') rows = list.slice().sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || (isDoneOn(a, today()) - isDoneOn(b, today())) || String((todoTimes(a)[0] || '')).localeCompare(String((todoTimes(b)[0] || ''))));
+    else if (st === 'all') rows = allTodos().slice().sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || String((todoTimes(a)[0] || '')).localeCompare(String((todoTimes(b)[0] || ''))));
+    else rows = allTodos().filter(t => {
+      const d = addDays(today(), -1);
+      return isDoneOn(t, today()) || isDoneOn(t, d);
+    });
+
+    const ms = allMilestones().slice().sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0) || String(a.date || '').localeCompare(String(b.date || '')));
+    const msHTML = `<div class="sec"><h2>里程碑</h2>${ms.length ? `<button class="more" data-act="add-milestone" style="background:none;color:var(--brand);font-weight:650">＋ 添加</button>` : ''}</div>
+      ${ms.length ? `<div class="card"><div class="ms">${ms.map(m => `
+        <div class="m${m.done ? ' done' : ''}" data-act="edit-milestone" data-id="${m.id}" role="button">
+          <div style="flex:1;min-width:0">
+            <div class="mt">${esc(m.title)}</div>
+            <div class="md">${m.done ? '已完成' : '计划'}${m.date ? ' · ' + esc(fmtMD(m.date)) : ''}</div>
+          </div>
+          <span class="check${m.done ? ' done' : ''}" data-act="toggle-milestone" data-id="${m.id}" role="button" aria-label="标记完成">${icon('check', 'width:14px;height:14px')}</span>
+        </div>`).join('')}</div></div>`
+        : `<div class="card flat" style="display:flex;align-items:center;gap:10px"><span class="small muted">把打疫苗、绝育、首次外出这些大事件记在这里。</span><button class="btn ghost sm" style="margin-left:auto;flex:none" data-act="add-milestone">添加</button></div>`}`;
+
+    return `
+      <div class="card tight">
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <div style="font-size:var(--fs-sm);font-weight:700">今天已完成</div>
+          <div class="num" style="margin-left:auto;font-size:22px;font-weight:750">${done.length}<span class="muted" style="font-size:14px">/${list.length}</span></div>
+        </div>
+        <div class="bar ${pct === 100 ? 'ok' : ''}"><i style="width:${pct}%"></i></div>
+        <div class="small muted" style="margin-top:8px">已完成 ${pct}%${streakDays() ? ` · 连续全清 ${streakDays()} 天` : ''}</div>
+      </div>
+      ${segHTML('todoFilter', [{ v: 'today', n: '今天' }, { v: 'all', n: '全部' }, { v: 'recent', n: '近期完成' }], st)}
+      ${rows.length ? `<div class="list">${rows.map(todoRowHTML).join('')}</div>` :
+        emptyState('todo', '还没有待办', '把喂食、铲屎、换水、梳毛这些固定动作建起来，每天勾一下就行。', '新建第一条待办', 'add-todo')}
+      ${msHTML}
+      <div style="height:8px"></div>`;
+  },
+  fab: () => `<button class="fab" data-act="add-todo" aria-label="新增待办">${icon('plus')}</button>`
+};
+function todoRowHTML(t) {
+  const done = isDoneOn(t, today());
+  const due = t.repeat === 'once' && t.date;
+  const overdue = due && t.date < today() && !done;
+  const times = todoTimes(t);
+  return `<div class="row task${done ? ' done' : ''}" data-act="toggle-todo" data-id="${t.id}" role="button" tabindex="0" aria-pressed="${done}" aria-label="${esc(t.title)}${done ? '，已完成' : '，标记完成'}">
+    <span class="check${done ? ' done' : ''}${justDoneId === t.id ? ' pop' : ''}" aria-hidden="true">${icon('check', 'width:14px;height:14px')}</span>
+    <div class="grow">
+      <div class="t">${t.pinned ? '<span class="tag brand">必做</span>' : ''}${esc(t.title)}${overdue ? ' <span class="tag danger">逾期</span>' : ''}</div>
+      <div class="d">${esc(repeatText(t))}${times.length ? ' · ' + times.map(esc).join(' / ') : ''}${t.note ? ' · ' + esc(t.note) : ''}</div>
+    </div>
+    <span class="chev" data-act="edit-todo" data-id="${t.id}" role="button" tabindex="0" aria-label="编辑">${icon('edit', 'width:17px;height:17px')}</span>
+  </div>`;
+}
+function todoExtraHTML(kind, t) {
+  t = t || {};
+  if (kind === 'weekly') {
+    const sel = t.weekdays && t.weekdays.length ? t.weekdays : [1, 2, 3, 4, 5, 6, 0];
+    return field('周几', `<div class="chips" id="f-wd">${[0, 1, 2, 3, 4, 5, 6].map(d =>
+      `<button type="button" class="chip${sel.includes(d) ? ' on' : ''}" data-act="pick-wd" data-d="${d}">周${WD[d]}</button>`).join('')}</div>`);
+  }
+  if (kind === 'monthly') return field('每月几号', `<input class="input num" type="number" min="1" max="31" id="f-mday" value="${num(t.monthDay, 1)}">`);
+  if (kind === 'once') return field('日期', `<input class="input" type="date" id="f-date" value="${t.date || today()}">`);
+  return '';
+}
+const TODO_PRESETS = ['喂食', '换水', '铲猫砂', '梳毛', '陪玩', '清洁眼耳', '刷牙', '称体重'];
+const timeRowHTML = v => `<div class="timeRow" style="display:flex;gap:8px;margin-bottom:8px">
+  <input class="input" type="time" value="${esc(v || '')}">
+  <button type="button" class="btn ghost sm" data-act="del-time" style="flex:none">删除</button></div>`;
+function todoFormHTML(t) {
+  t = t || {};
+  const kind = t.repeat || 'daily';
+  const times = todoTimes(t);
+  const timeList = times.length ? times : [''];
+  return field('事项', `<input class="input" id="f-title" placeholder="喂食 / 铲猫砂 / 换水 / 梳毛" value="${esc(t.title || '')}">`)
+    + field('常用', `<div class="chips">${TODO_PRESETS.map(p => `<button type="button" class="chip" data-act="pick-todo" data-v="${esc(p)}">${esc(p)}</button>`).join('')}</div>`, '点一下自动填入上面的事项。')
+    + field('重复', `<select class="select" id="f-repeat">${REPEATS.map(r => `<option value="${r.v}"${kind === r.v ? ' selected' : ''}>${r.n}</option>`).join('')}</select>`)
+    + `<div id="f-extra">${todoExtraHTML(kind, t)}</div>`
+    + field('每天提醒时间', `<div id="f-times">${timeList.map(timeRowHTML).join('')}</div>
+        <button type="button" class="btn ghost sm" data-act="add-time" style="margin-top:8px">＋ 添加时间点</button>`, '可加多个时间点（次数）；不填就是不提醒。')
+    + `<div class="switch"><input type="checkbox" id="f-pinned"${t.pinned ? ' checked' : ''}><label for="f-pinned" style="cursor:pointer">固定为每日必做</label></div>`
+    + field('备注', `<input class="input" id="f-note" placeholder="可选" value="${esc(t.note || '')}">`);
+}
+function openTodoForm(id) {
+  const t = id ? S.todos.find(x => x.id === id) : null;
+  formSheet(t ? '编辑待办' : '新建待办', todoFormHTML(t), '保存', async () => {
+    const title = fval('f-title');
+    if (!title) return toast('请填写事项');
+    const repeat = fval('f-repeat');
+    const wd = $$('#f-wd .chip.on').map(b => num(b.dataset.d));
+    if (repeat === 'weekly' && !wd.length) return toast('至少选一天');
+    const times = $$('#f-times input[type=time]').map(i => i.value.trim()).filter(Boolean);
+    const rec = t ? Object.assign(t, {}) : newRec({ catId: currentCatId });
+    Object.assign(rec, {
+      title, repeat, note: fval('f-note'), time: times[0] || '', times,
+      pinned: fchk('f-pinned'),
+      weekdays: repeat === 'weekly' ? wd : [],
+      monthDay: repeat === 'monthly' ? num(fval('f-mday'), 1) : null,
+      date: repeat === 'once' ? (fval('f-date') || today()) : null,
+      log: t ? (t.log || {}) : {}
+    });
+    await save('todos', rec);
+    closeSheet(); render(); toast(t ? '已更新' : '已添加');
+  }, t ? () => ACT['del-todo']({ dataset: { id: t.id } }) : null);
+  const sel = $('#f-repeat');
+  if (sel) sel.addEventListener('change', () => {
+    const ex = $('#f-extra');
+    if (ex) ex.innerHTML = todoExtraHTML(sel.value, t || {});
+  });
+}
+ACT['add-time'] = () => { const box = $('#f-times'); if (box) box.insertAdjacentHTML('beforeend', timeRowHTML('')); };
+ACT['del-time'] = el => { const r = el.closest('.timeRow'); if (r) r.remove(); };
+ACT['pick-todo'] = el => { const i = $('#f-title'); if (i) i.value = el.dataset.v; };
+ACT['add-todo'] = () => openTodoForm(null);
+ACT['edit-todo'] = el => openTodoForm(el.dataset.id);
+ACT['del-todo'] = el => {
+  const t = S.todos.find(x => x.id === el.dataset.id);
+  if (!t) return;
+  confirmBox('删除这条待办？', `${t.title}（${repeatText(t)}），删除后无法恢复。`, '删除', async () => {
+    await softDel('todos', t.id); render(); toast('已删除');
+  });
+};
+ACT['toggle-todo'] = async (el) => {
+  const t = S.todos.find(x => x.id === el.dataset.id);
+  if (!t) return;
+  t.log = t.log || {};
+  const d = today();
+  const wasDone = !!t.log[d];
+  if (wasDone) delete t.log[d]; else t.log[d] = Date.now();
+  justDoneId = wasDone ? null : t.id;
+  const r = el.getBoundingClientRect();
+  await save('todos', t);
+  render();
+  /* 等渲染帧读取完 justDoneId 再清空，保证勾选动画不丢 */
+  requestAnimationFrame(() => { justDoneId = null; });
+  if (!wasDone) {
+    burstAt(r.left + 26, r.top + r.height / 2, 14);
+    const list = dueToday();
+    if (list.length && list.every(x => isDoneOn(x, today()))) celebrate('今天全部完成！');
+  }
+};
+
+/* ---------- 里程碑 ---------- */
+const MS_PRESETS = ['猫三联·第一针', '猫三联·第二针', '狂犬疫苗', '绝育手术', '首次体检', '首次外出', '体内驱虫', '体外驱虫', '剪指甲'];
+function openMilestoneForm(id) {
+  const m = id ? S.todos.find(x => x.id === id && isMilestone(x)) : null;
+  const body = field('事项', `<input class="input" id="f-mtitle" placeholder="如：猫三联·第一针" value="${esc(m ? m.title : '')}">`)
+    + field('常用', `<div class="chips">${MS_PRESETS.map(p => `<button type="button" class="chip" data-act="pick-ms" data-v="${esc(p)}">${esc(p)}</button>`).join('')}</div>`, '点一下自动填入上面的事项。')
+    + field('日期', `<input class="input" type="date" id="f-mdate" value="${m && m.date ? m.date : today()}">`, '计划或已完成的日期。')
+    + `<div class="switch"><input type="checkbox" id="f-mdone"${m && m.done ? ' checked' : ''}><label for="f-mdone" style="cursor:pointer">已完成</label></div>`;
+  formSheet(m ? '编辑里程碑' : '添加里程碑', body, '保存', async () => {
+    const title = fval('f-mtitle');
+    if (!title) return toast('请填写事项');
+    const done = fchk('f-mdone');
+    const date = fval('f-mdate') || today();
+    const rec = m ? Object.assign(m, {}) : newRec({ catId: currentCatId, kind: 'milestone' });
+    Object.assign(rec, { kind: 'milestone', title, date, done, doneDate: done ? date : null });
+    await save('todos', rec);
+    closeSheet(); render(); toast(m ? '已更新' : '已添加');
+  }, m ? () => ACT['del-milestone']({ dataset: { id: m.id } }) : null);
+}
+ACT['add-milestone'] = () => openMilestoneForm(null);
+ACT['edit-milestone'] = el => openMilestoneForm(el.dataset.id);
+ACT['pick-ms'] = el => { const i = $('#f-mtitle'); if (i) i.value = el.dataset.v; };
+ACT['del-milestone'] = el => {
+  const m = S.todos.find(x => x.id === el.dataset.id && isMilestone(x));
+  if (!m) return;
+  confirmBox('删除这个里程碑？', `${m.title}${m.date ? '（' + fmtMD(m.date) + '）' : ''}，删除后无法恢复。`, '删除', async () => {
+    await softDel('todos', m.id); render(); toast('已删除');
+  });
+};
+ACT['toggle-milestone'] = async el => {
+  const m = S.todos.find(x => x.id === el.dataset.id && isMilestone(x));
+  if (!m) return;
+  m.done = !m.done;
+  m.doneDate = m.done ? today() : null;
+  await save('todos', m);
+  render();
+  if (m.done) celebrate('里程碑达成！'); else toast('已取消');
+};
+
+/* ---------- 待办设置 ---------- */
+ACT['todo-settings'] = () => {
+  const s = S.settings;
+  const mode = s.colorMode || 'system';
+  const fs = s.fontSize || 'md';
+  const bgOn = s.homeBg !== false;
+  const body = `
+    <div class="field"><label>主题颜色</label>
+      <div class="chips" id="f-theme">${THEMES.map(t => `<button type="button" class="chip${(s.colorTheme || 'clay') === t.v ? ' on' : ''}" data-act="pick-theme" data-v="${t.v}" style="display:inline-flex;align-items:center;gap:6px">
+        <span style="width:14px;height:14px;border-radius:50%;background:${t.c};box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.14)"></span>${t.n}</button>`).join('')}</div>
+    </div>
+    <div class="field"><label>字体大小</label>
+      <div class="seg" id="f-fs">${[['sm', '小'], ['md', '标准'], ['lg', '大']].map(([v, n]) => `<button type="button" class="${fs === v ? 'on' : ''}" data-act="pick-fs" data-v="${v}">${n}</button>`).join('')}</div>
+    </div>
+    <div class="field"><label>深色模式</label>
+      <div class="seg" id="f-mode">${[['system', '跟随系统'], ['light', '浅色'], ['dark', '深色']].map(([v, n]) => `<button type="button" class="${mode === v ? 'on' : ''}" data-act="pick-mode" data-v="${v}">${n}</button>`).join('')}</div>
+    </div>
+    <div class="field"><label>首页照片背景</label>
+      <div class="switch"><input type="checkbox" id="f-hombg"${bgOn ? ' checked' : ''}><label for="f-hombg" style="cursor:pointer">相册有照片时自动轮播</label></div>
+      <div class="small muted" style="margin-top:2px">打开后，首页会用当前猫咪的相册照片做淡入淡出轮播背景。</div>
+    </div>
+    <div class="btnrow"><button class="btn ghost block" data-act="close-sheet">完成</button></div>`;
+  openSheet(`${sheetHead('设置')}<div class="sheet-body">${body}</div>`, null);
+  const cb = $('#f-hombg');
+  if (cb) cb.addEventListener('change', async () => { S.settings.homeBg = cb.checked; await saveSettings(); render(); });
+};
+ACT['pick-theme'] = el => { setSetting('colorTheme', el.dataset.v); $$('#f-theme .chip').forEach(b => b.classList.toggle('on', b === el)); };
+ACT['pick-fs'] = el => { setSetting('fontSize', el.dataset.v); $$('#f-fs button').forEach(b => b.classList.toggle('on', b === el)); };
+ACT['pick-mode'] = el => { setSetting('colorMode', el.dataset.v); $$('#f-mode button').forEach(b => b.classList.toggle('on', b === el)); };
+ACT['pick-wd'] = el => el.classList.toggle('on');
+ACT['seg'] = (el) => {
+  const name = el.dataset.seg;
+  S.settings[name] = el.dataset.val;
+  saveSettings();
+  render();
+};
+ACT['switch-cat'] = () => {
+  openSheet(`${sheetHead('切换宠物')}<div class="sheet-body"><div class="list">${S.cats.map(c =>
+    `<div class="row" data-act="set-cat" data-id="${c.id}" role="button" tabindex="0"><span class="avatar">${c.avatarKey ? `<img src="${thumbOf(c.avatarKey)}" alt="">` : icon('paw', 'width:22px;height:22px')}</span>
+      <div class="grow"><div class="t">${esc(c.name)}</div><div class="d">${esc(c.breed || '未填品种')}</div></div>
+      ${c.id === currentCatId ? `<span class="tag brand">当前</span>` : icon('chev')}</div>`).join('')}</div>
+      <div class="btnrow"><button class="btn ghost" data-act="close-sheet">关闭</button><button class="btn primary" data-act="add-cat">新建档案</button></div>
+    </div>`, null);
+};
+ACT['set-cat'] = async el => { currentCatId = el.dataset.id; await saveSettings(); closeSheet(); render(); };
+ACT['goto-cat'] = () => nav('/cat');
+/* ===================== 模块二：健康档案 ===================== */
+const HTYPES = {
+  vaccine: { n: '疫苗', i: 'syringe', c: 'ok' },
+  deworm: { n: '驱虫', i: 'pill', c: 'warn' },
+  weight: { n: '体重', i: 'scale', c: 'brand' },
+  visit: { n: '就医', i: 'stethoscope', c: 'danger' },
+  med: { n: '用药', i: 'pill', c: 'warn' }
+};
+const healthOf = () => S.health.filter(h => h.catId === currentCatId);
+/* 每一类（按标题分组）取最近一次记录，看它的下次时间 */
+function healthReminders() {
+  const map = {};
+  healthOf().forEach(h => {
+    const k = h.type + '|' + (h.title || '');
+    if (!map[k] || String(h.date || '') > String(map[k].date || '')) map[k] = h;
+  });
+  return Object.values(map).filter(h => h.nextDate)
+    .sort((a, b) => String(a.nextDate).localeCompare(String(b.nextDate)));
+}
+function reminderState(h) {
+  const n = diffDays(today(), h.nextDate);
+  if (n < 0) return { lv: 'danger', tag: 'danger', txt: `已逾期 ${-n} 天` };
+  if (n === 0) return { lv: 'danger', tag: 'danger', txt: '就是今天' };
+  if (n <= 14) return { lv: 'warn', tag: 'warn', txt: `${n} 天后到期` };
+  return { lv: 'ok', tag: 'ok', txt: `${n} 天后到期` };
+}
+function weightSeries() {
+  return healthOf().filter(h => h.type === 'weight' && h.value != null)
+    .sort(byDateAsc).map(h => ({ d: h.date, v: num(h.value) }));
+}
+function sparkSVG(vals) {
+  if (vals.length < 2) return '';
+  const w = 100, h = 32, pad = 4;
+  const min = Math.min(...vals), max = Math.max(...vals), span = (max - min) || 1;
+  const pts = vals.map((v, i) => [pad + i * (w - 2 * pad) / (vals.length - 1), h - pad - ((v - min) / span) * (h - 2 * pad)]);
+  const line = pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  const area = `${pad},${h - pad} ${line} ${(w - pad).toFixed(1)},${h - pad}`;
+  const last = pts[pts.length - 1];
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+    <polygon class="area" points="${area}"/>
+    <polyline points="${line}" vector-effect="non-scaling-stroke"/>
+    <circle class="dot" cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="2.4" vector-effect="non-scaling-stroke"/></svg>`;
+}
+function healthViewHTML() {
+  const st = S.settings.healthFilter || 'all';
+  const items = healthOf()
+    .filter(h => st === 'all' || h.type === st)
+    .sort(byDateDesc);
+  return items.length ? `<div class="list">${items.map(healthRowHTML).join('')}</div>`
+    : emptyState('heart', st === 'all' ? '还没有健康记录' : `没有${HTYPES[st].n}记录`, '疫苗、驱虫、体重、就医都记在这里，到点自动提醒你。', '添加记录', 'add-health');
+}
+function healthRowHTML(h) {
+  const meta = HTYPES[h.type] || { n: '记录', i: 'dot', c: '' };
+  const rem = h.nextDate ? reminderState(h) : null;
+  const val = h.value != null ? (h.type === 'weight' ? `<span class="num" style="font-weight:700;color:var(--ink)">${num(h.value)}<small class="muted"> kg</small></span>` : num(h.value)) : '';
+  return `<div class="row" data-act="edit-health" data-id="${h.id}" role="button" tabindex="0">
+    <span class="avatar" style="background:var(--surface-2);color:var(--ink-2)">${icon(meta.i, 'width:21px;height:21px')}</span>
+    <div class="grow">
+      <div class="t">${esc(h.title || meta.n)} <span class="tag ${meta.c}">${meta.n}</span></div>
+      <div class="d">${esc(fmtMD(h.date))}${h.detail ? ' · ' + esc(h.detail) : ''}${h.place ? ' · ' + esc(h.place) : ''}${h.cost ? ' · ¥' + yuan(h.cost) : ''}</div>
+    </div>
+    <div style="text-align:right;flex:none">
+      <div>${val}</div>
+      ${rem ? `<span class="tag ${rem.tag}" style="margin-top:3px">${esc(relDay(h.nextDate))}</span>` : ''}
+    </div>
+  </div>`;
+}
+routes.health = {
+  title: '健康档案',
+  top: () => topbar(`${catSwitcherHTML()}${settingsBtnHTML()}`),
+  view: () => {
+    const rem = healthReminders().filter(h => diffDays(today(), h.nextDate) <= 60);
+    const series = weightSeries();
+    const lastW = series.length ? series[series.length - 1] : null;
+    const prevW = series.length > 1 ? series[series.length - 2] : null;
+    const delta = lastW && prevW ? (lastW.v - prevW.v) : null;
+    const st = S.settings.healthFilter || 'all';
+    const typeItems = [{ v: 'all', n: '全部' }].concat(Object.keys(HTYPES).map(k => ({ v: k, n: HTYPES[k].n })));
+    return `
+      ${rem.length ? `<div class="sec"><h2>到期提醒</h2></div>
+        <div class="list">${rem.map(h => {
+        const s = reminderState(h);
+        const meta = HTYPES[h.type] || { n: '记录', i: 'dot' };
+        return `<div class="row" data-act="edit-health" data-id="${h.id}" role="button">
+            <span class="avatar" style="background:var(--${s.lv === 'danger' ? 'danger-soft' : s.lv === 'warn' ? 'warn-soft' : 'ok-soft'});color:var(--${s.lv})">${icon(meta.i, 'width:21px;height:21px')}</span>
+            <div class="grow"><div class="t">${esc(h.title || meta.n)}</div>
+              <div class="d">上次 ${esc(fmtMD(h.date))} · 下次 ${esc(fmtMD(h.nextDate))}</div></div>
+            <span class="tag ${s.tag}">${esc(s.txt)}</span></div>`;
+      }).join('')}</div>` : ''}
+
+      <div class="sec"><h2>体重</h2>${lastW ? `<span class="more num">${series.length} 次记录</span>` : ''}</div>
+      ${lastW ? `<div class="card">
+        <div style="display:flex;align-items:baseline;gap:10px">
+          <div class="num" style="font-size:26px;font-weight:750">${num(lastW.v)}<small style="font-size:13px;font-weight:600;color:var(--ink-3);margin-left:3px">kg</small></div>
+          ${delta != null ? `<span class="tag ${Math.abs(delta) < 0.001 ? '' : delta > 0 ? 'warn' : 'ok'}">${delta > 0 ? '+' : ''}${(Math.round(delta * 100) / 100).toFixed(2)} kg</span>` : ''}
+          <span class="small muted" style="margin-left:auto">${esc(fmtMD(lastW.d))}</span>
+        </div>
+        ${series.length > 1 ? sparkSVG(series.map(x => x.v)) : ''}
+      </div>`
+        : `<div class="card flat"><div class="small muted">还没有体重记录。建议每周固定时间称一次，趋势比单次数值更重要。</div></div>`}
+
+      <div class="sec"><h2>全部记录</h2></div>
+      ${segHTML('healthFilter', typeItems, st)}
+      ${healthViewHTML()}
+      <div style="height:8px"></div>`;
+  },
+  fab: () => { const st = S.settings.healthFilter || 'all'; return `<button class="fab" data-act="add-health" data-type="${st === 'all' ? '' : st}" aria-label="添加记录">${icon('plus')}</button>`; }
+};
+function healthFormHTML(h, presetType) {
+  h = h || {};
+  const type = h.type || presetType || 'vaccine';
+  return field('类型', `<select class="select" id="f-htype">${Object.keys(HTYPES).map(k =>
+    `<option value="${k}"${type === k ? ' selected' : ''}>${HTYPES[k].n}</option>`).join('')}</select>`, presetType && !h.type ? '已按当前模块自动选好，可手动改。' : '')
+    + `<div id="f-hextra">${healthExtraHTML(type, h)}</div>`;
+}
+function healthExtraHTML(type, h) {
+  h = h || {};
+  const dateF = field('日期', `<input class="input" type="date" id="f-hdate" value="${h.date || today()}">`);
+  const titleHint = { vaccine: '如：猫三联第二针 / 狂犬', deworm: '如：体内驱虫 / 体外驱虫', weight: '体重记录', visit: '如：呕吐就诊', med: '如：抗生素疗程' };
+  const titleF = field('名称', `<input class="input" id="f-htitle" placeholder="${titleHint[type] || ''}" value="${esc(h.title || '')}">`);
+  if (type === 'weight') {
+    return dateF + field('体重（kg）', `<input class="input num" type="number" step="0.01" min="0" id="f-hvalue" placeholder="4.20" value="${h.value != null ? h.value : ''}">`);
+  }
+  if (type === 'visit') {
+    return dateF + titleF
+      + field('医院', `<input class="input" id="f-hplace" placeholder="可选" value="${esc(h.place || '')}">`)
+      + field('花费（元）', `<input class="input num" type="number" step="0.01" min="0" id="f-hcost" placeholder="可选" value="${h.cost != null ? h.cost : ''}">`)
+      + field('诊断 / 处理', `<textarea class="textarea" id="f-hdetail" placeholder="可选">${esc(h.detail || '')}</textarea>`);
+  }
+  const nextHint = type === 'vaccine' ? '一般为 1 年后' : type === 'deworm' ? '一般为 1–3 个月后' : '可选';
+  return dateF + titleF
+    + field('下次时间', `<input class="input" type="date" id="f-hnext" value="${h.nextDate || ''}">`, nextHint)
+    + field('备注', `<textarea class="textarea" id="f-hdetail" placeholder="可选：疫苗品牌、剂量等">${esc(h.detail || '')}</textarea>`);
+}
+function openHealthForm(id, presetType) {
+  const h = id ? S.health.find(x => x.id === id) : null;
+  formSheet(h ? '编辑健康记录' : '添加健康记录', healthFormHTML(h, presetType), '保存', async () => {
+    const type = fval('f-htype');
+    const date = fval('f-hdate') || today();
+    if (!date) return toast('请选择日期');
+    const rec = h ? Object.assign(h, {}) : newRec({ catId: currentCatId });
+    const base = { type, date, title: fval('f-htitle') || HTYPES[type].n, detail: fval('f-hdetail'), place: fval('f-hplace'), cost: fnum('f-hcost'), nextDate: fval('f-hnext') || null, value: null };
+    if (type === 'weight') { base.value = fnum('f-hvalue'); if (base.value == null) return toast('请填写体重'); }
+    Object.assign(rec, base);
+    await save('health', rec);
+    closeSheet(); render(); toast(h ? '已更新' : '已记录');
+  }, h ? () => ACT['del-health']({ dataset: { id: h.id } }) : null);
+  const sel = $('#f-htype');
+  if (sel) sel.addEventListener('change', () => {
+    const ex = $('#f-hextra');
+    if (ex) ex.innerHTML = healthExtraHTML(sel.value, h || {});
+  });
+}
+ACT['add-health'] = el => openHealthForm(null, el && el.dataset ? (el.dataset.type || null) : null);
+ACT['edit-health'] = el => openHealthForm(el.dataset.id);
+ACT['del-health'] = el => {
+  const h = S.health.find(x => x.id === el.dataset.id);
+  if (!h) return;
+  confirmBox('删除这条记录？', `${HTYPES[h.type] ? HTYPES[h.type].n : '记录'} · ${fmtMD(h.date)} · ${h.title || ''}，删除后无法恢复。`, '删除', async () => {
+    await softDel('health', h.id); render(); toast('已删除');
+  });
+};
+/* ===================== 模块三：开销记账 ===================== */
+const ECOLORS = ['#C4622D', '#4E7A66', '#B0801F', '#8A5A8F', '#3F7FA6', '#B23A2F', '#7A6A57'];
+const ECATS = ['猫粮', '猫砂', '医疗', '驱虫疫苗', '玩具用品', '洗护美容', '其他'];
+const ecof = c => ECOLORS[Math.max(0, ECATS.indexOf(c)) % ECOLORS.length];
+const expOf = () => S.expenses.filter(e => e.catId === currentCatId);
+const curMonth = () => S.settings.expMonth || today().slice(0, 7);
+function shiftMonth(m, n) {
+  const [y, mo] = m.split('-').map(Number);
+  const d = new Date(y, mo - 1 + n, 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+function monthLabel(m) { const [y, mo] = m.split('-').map(Number); return `${y}年${mo}月`; }
+function monthExpenses(m) { return expOf().filter(e => String(e.date).slice(0, 7) === m); }
+function sum(list) { return list.reduce((a, b) => a + num(b.amount), 0); }
+
+routes.expense = {
+  title: '开销记账',
+  top: () => topbar(`${catSwitcherHTML()}${settingsBtnHTML()}`),
+  view: () => {
+    const m = curMonth();
+    const list = monthExpenses(m).slice().sort(byDateDesc);
+    const total = sum(list);
+    const prev = sum(monthExpenses(shiftMonth(m, -1)));
+    const byCat = ECATS.map(c => ({ c, v: sum(list.filter(e => e.category === c)) })).filter(x => x.v > 0).sort((a, b) => b.v - a.v);
+    const top = byCat[0];
+    const isThisMonth = m === today().slice(0, 7);
+    const avgDay = list.length ? total / Math.max(1, new Date(num(m.slice(0, 4)), num(m.slice(5, 7)), 0).getDate()) : 0;
+    // 近 6 个月趋势
+    const months = Array.from({ length: 6 }, (_, i) => shiftMonth(m, i - 5));
+    const trend = months.map(x => sum(monthExpenses(x)));
+    const maxTrend = Math.max(...trend, 1);
+    // 总览：该宠物全部历史开销
+    const allList = expOf().slice().sort(byDateDesc);
+    const allTotal = sum(allList);
+    const allCount = allList.length;
+    const allByCat = ECATS.map(c => ({ c, v: sum(allList.filter(e => e.category === c)) })).filter(x => x.v > 0).sort((a, b) => b.v - a.v);
+    const firstDate = allList.length ? String(allList[allList.length - 1].date || '').slice(0, 10) : null;
+    let monthsSpan = 1;
+    if (firstDate) {
+      const a = firstDate.slice(0, 7).split('-').map(Number), b = today().slice(0, 7).split('-').map(Number);
+      monthsSpan = Math.max(1, (b[0] - a[0]) * 12 + (b[1] - a[1]) + 1);
+    }
+    const avgMonth = allTotal / monthsSpan;
+    const topAll = allByCat[0];
+
+    return `
+      <div style="display:flex;align-items:center;gap:8px;margin:4px 0 14px">
+        <button class="iconbtn" data-act="exp-prev" aria-label="上个月">${icon('back')}</button>
+        <div style="flex:1;text-align:center;font-weight:750;font-size:var(--fs-md)">${monthLabel(m)}${isThisMonth ? ' <span class="tag brand">本月</span>' : ''}</div>
+        <button class="iconbtn" data-act="exp-next" aria-label="下个月" ${isThisMonth ? 'disabled style="opacity:.35"' : ''}>${icon('chev')}</button>
+      </div>
+
+      <div class="hero" style="background:linear-gradient(150deg,#3E4A5C 0%,#2C3542 100%)">
+        <div class="ht">本月支出合计</div>
+        <div class="hv num">¥ ${yuan(total)}</div>
+        <div class="hd">${list.length} 笔记录 · 日均 ¥ ${yuan(avgDay)}</div>
+        <div class="hrow">
+          <div>上月同期<b class="num">¥ ${yuan(prev)}</b></div>
+          <div>最大项<b>${top ? esc(top.c) : '—'}</b></div>
+          <div>占比<b class="num">${top && total ? Math.round(top.v / total * 100) + '%' : '—'}</b></div>
+        </div>
+      </div>
+
+      <div class="sec"><h2>总览 · 累计开销</h2></div>
+      <div class="card">
+        <div style="display:flex;align-items:baseline;gap:10px">
+          <div class="num" style="font-size:30px;font-weight:750;letter-spacing:-.02em">¥ ${yuan(allTotal)}</div>
+          <span class="small muted" style="margin-left:auto">${allCount} 笔记录</span>
+        </div>
+        ${allCount ? `<div style="display:flex;gap:18px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)">
+            <div><div class="small muted" style="font-weight:600">月均</div><div class="num" style="font-weight:750;font-size:var(--fs-md)">¥ ${yuan(avgMonth)}</div></div>
+            <div><div class="small muted" style="font-weight:600">起始</div><div style="font-weight:750;font-size:var(--fs-md)">${firstDate ? esc(fmtMD(firstDate)) : '—'}</div></div>
+            <div><div class="small muted" style="font-weight:600">最大项</div><div style="font-weight:750;font-size:var(--fs-md)">${topAll ? esc(topAll.c) : '—'}</div></div>
+          </div>
+          <div class="bars" style="margin-top:14px">${allByCat.map(x => `
+            <div class="bline"><span class="n">${esc(x.c)}</span>
+              <span class="track"><i style="width:${allTotal ? (x.v / allTotal * 100) : 0}%;background:${ecof(x.c)}"></i></span>
+              <span class="amt num">¥${yuan(x.v)}</span></div>`).join('')}</div>`
+        : `<div class="small muted" style="margin-top:8px">还没有任何记账，记第一笔后这里会汇总这只宠物的全部开销。</div>`}
+      </div>
+
+      ${byCat.length ? `<div class="sec"><h2>本月分类占比</h2></div>
+      <div class="card"><div class="bars">${byCat.map(x => `
+        <div class="bline"><span class="n">${esc(x.c)}</span>
+          <span class="track"><i style="width:${total ? (x.v / total * 100) : 0}%;background:${ecof(x.c)}"></i></span>
+          <span class="amt num">¥${yuan(x.v)}</span></div>`).join('')}</div></div>` : ''}
+
+      <div class="sec"><h2>近 6 个月</h2></div>
+      <div class="card"><div style="display:flex;align-items:flex-end;gap:8px;height:96px">
+        ${months.map((x, i) => `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end">
+          <div class="num" style="font-size:10px;color:var(--ink-3);font-weight:650">${trend[i] ? yuan(trend[i]) : ''}</div>
+          <div style="width:100%;border-radius:6px 6px 3px 3px;background:${x === m ? 'var(--brand)' : 'var(--surface-3)'};height:${Math.max(4, trend[i] / maxTrend * 62)}px"></div>
+          <div style="font-size:10px;color:var(--ink-3);font-weight:650">${x.slice(5)}月</div>
+        </div>`).join('')}
+      </div></div>
+
+      <div class="sec"><h2>账目明细</h2>${list.length ? `<span class="more num">共 ${list.length} 笔</span>` : ''}</div>
+      ${list.length ? `<div class="list">${list.map(e => `
+        <div class="row" data-act="edit-expense" data-id="${e.id}" role="button" tabindex="0">
+          <span class="avatar" style="background:${ecof(e.category)}1F;color:${ecof(e.category)}">${icon('wallet', 'width:21px;height:21px')}</span>
+          <div class="grow"><div class="t">${esc(e.category)}</div>
+            <div class="d">${esc(fmtMD(e.date))}${e.note ? ' · ' + esc(e.note) : ''}</div></div>
+          <div class="num" style="font-weight:750">¥ ${yuan(e.amount)}</div>
+        </div>`).join('')}</div>`
+        : emptyState('wallet', '本月还没有记录', '猫粮、猫砂、医疗、驱虫这些花销记下来，月底能看清钱花在哪。', '记第一笔', 'add-expense')}
+      <div style="height:8px"></div>`;
+  },
+  fab: () => `<button class="fab" data-act="add-expense" aria-label="记一笔">${icon('plus')}</button>`
+};
+function expenseFormHTML(e) {
+  e = e || {};
+  return field('分类', `<div class="chips" id="f-ecat">${ECATS.map(c =>
+    `<button type="button" class="chip${(e.category || ECATS[0]) === c ? ' on' : ''}" data-act="pick-cat" data-c="${c}">${c}</button>`).join('')}</div>`)
+    + field('金额（元）', `<input class="input num" type="number" step="0.01" min="0" id="f-eamount" inputmode="decimal" placeholder="0.00" value="${e.amount != null ? e.amount : ''}">`)
+    + field('日期', `<input class="input" type="date" id="f-edate" value="${e.date || today()}">`)
+    + field('备注', `<input class="input" id="f-enote" placeholder="可选：品牌 / 规格 / 医院" value="${esc(e.note || '')}">`);
+}
+function openExpenseForm(id) {
+  const e = id ? S.expenses.find(x => x.id === id) : null;
+  formSheet(e ? '编辑账目' : '记一笔', expenseFormHTML(e), '保存', async () => {
+    const sel = $('#f-ecat .chip.on');
+    const amount = fnum('f-eamount');
+    if (amount == null || amount <= 0) return toast('请填写金额');
+    const rec = e ? Object.assign(e, {}) : newRec({ catId: currentCatId });
+    Object.assign(rec, { category: sel ? sel.dataset.c : ECATS[0], amount, date: fval('f-edate') || today(), note: fval('f-enote') });
+    await save('expenses', rec);
+    closeSheet(); render(); toast(e ? '已更新' : '已记账');
+  }, e ? () => ACT['del-expense']({ dataset: { id: e.id } }) : null);
+}
+ACT['add-expense'] = () => openExpenseForm(null);
+ACT['edit-expense'] = el => openExpenseForm(el.dataset.id);
+ACT['del-expense'] = el => {
+  const e = S.expenses.find(x => x.id === el.dataset.id);
+  if (!e) return;
+  confirmBox('删除这笔账目？', `${fmtMD(e.date)} · ${e.category} · ¥${yuan(e.amount)}`, '删除', async () => {
+    await softDel('expenses', e.id); render(); toast('已删除');
+  });
+};
+ACT['pick-cat'] = el => { $$('#f-ecat .chip').forEach(b => b.classList.toggle('on', b === el)); };
+ACT['exp-prev'] = () => { S.settings.expMonth = shiftMonth(curMonth(), -1); saveSettings(); render(); };
+ACT['exp-next'] = () => {
+  const n = shiftMonth(curMonth(), 1);
+  if (n > today().slice(0, 7)) return;
+  S.settings.expMonth = n; saveSettings(); render();
+};
+
+/* ===================== 模块四：周期目标 ===================== */
+const goalsOf = () => S.goals.filter(g => g.catId === currentCatId);
+function goalStats(g) {
+  const recs = (g.records || []).slice().sort(byDateAsc);
+  const cur = recs.length ? num(recs[recs.length - 1].value) : num(g.startValue);
+  const from = num(g.startValue), to = num(g.targetValue);
+  const span = to - from;
+  const pct = span === 0 ? (cur >= to ? 100 : 0) : Math.round((cur - from) / span * 100);
+  const left = to - cur;
+  const totalDays = g.startDate && g.endDate ? diffDays(g.startDate, g.endDate) : 0;
+  const usedDays = g.startDate ? diffDays(g.startDate, today()) : 0;
+  const timePct = totalDays > 0 ? Math.min(100, Math.round(usedDays / totalDays * 100)) : 0;
+  const done = span > 0 ? cur >= to : cur <= to;
+  return { cur, from, to, pct: Math.max(0, Math.min(100, pct)), left, done, timePct, totalDays, usedDays, recs };
+}
+routes.goal = {
+  title: '周期目标',
+  top: () => topbar(`<button class="iconbtn" data-act="back" aria-label="返回">${icon('back')}</button><div style="flex:1"><h1>周期目标</h1></div>
+    ${settingsBtnHTML()}`),
+  view: () => {
+    const list = goalsOf();
+    if (!list.length) return emptyState('target', '还没有周期目标', '比如「3 个月把体重从 5.4kg 降到 4.8kg」「每天陪玩 20 分钟」。', '新建目标', 'add-goal');
+    return list.map(g => {
+      const s = goalStats(g);
+      const over = s.pct > s.timePct + 15 ? 'ok' : s.pct < s.timePct - 15 ? 'danger' : 'warn';
+      return `<div class="card">
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <div style="font-weight:700;font-size:var(--fs-md);flex:1">${esc(g.title)}</div>
+          ${s.done ? '<span class="tag ok">已达成</span>' : ''}
+          <span class="chev" data-act="edit-goal" data-id="${g.id}" aria-label="编辑">${icon('edit', 'width:17px;height:17px')}</span>
+        </div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-top:8px">
+          <span class="num" style="font-size:22px;font-weight:750">${s.cur}<small style="font-size:12px;color:var(--ink-3);margin-left:2px">${esc(g.unit || '')}</small></span>
+          <span class="small muted">起点 ${s.from} → 目标 ${s.to}${g.unit ? ' ' + esc(g.unit) : ''}</span>
+          <span class="num small" style="margin-left:auto;font-weight:750">${s.pct}%</span>
+        </div>
+        <div class="bar ${over}"><i style="width:${s.pct}%"></i></div>
+        <div class="small muted" style="margin-top:8px">
+          还差 ${(Math.round(Math.abs(s.left) * 100) / 100)}${esc(g.unit || '')}
+          ${g.endDate ? ` · 截止 ${fmtMD(g.endDate)}` : ''}
+          ${s.totalDays ? ` · 时间已过 ${s.timePct}%` : ''}
+        </div>
+        <div class="btnrow">
+          <button class="btn ghost sm" data-act="add-progress" data-id="${g.id}">记录进度</button>
+          <button class="btn ghost sm" data-act="goal-detail" data-id="${g.id}">进度明细</button>
+        </div>
+      </div>`;
+    }).join('') + '<div style="height:8px"></div>';
+  },
+  fab: () => `<button class="fab" data-act="add-goal" aria-label="新建目标">${icon('plus')}</button>`
+};
+function goalFormHTML(g) {
+  g = g || {};
+  return field('目标名称', `<input class="input" id="f-gtitle" placeholder="如：3 个月体重降到 4.8kg" value="${esc(g.title || '')}">`)
+    + `<div class="grid2">
+        ${field('起始值', `<input class="input num" type="number" step="0.01" id="f-gfrom" value="${g.startValue != null ? g.startValue : ''}">`)}
+        ${field('目标值', `<input class="input num" type="number" step="0.01" id="f-gto" value="${g.targetValue != null ? g.targetValue : ''}">`)}
+      </div>`
+    + `<div class="grid2">
+        ${field('单位', `<input class="input" id="f-gunit" placeholder="kg / 分钟 / 次" value="${esc(g.unit || '')}">`)}
+        ${field('跟进频率', `<select class="select" id="f-gfreq">${[['', '不限'], ['day', '每日'], ['week', '每周'], ['month', '每月']].map(([v, n]) => `<option value="${v}"${(g.freq || '') === v ? ' selected' : ''}>${n}</option>`).join('')}</select>`)}
+      </div>`
+    + `<div class="grid2">
+        ${field('开始日期', `<input class="input" type="date" id="f-gstart" value="${g.startDate || today()}">`)}
+        ${field('截止日期', `<input class="input" type="date" id="f-gend" value="${g.endDate || addDays(today(), 90)}">`)}
+      </div>`
+    + field('说明', `<textarea class="textarea" id="f-gnote" placeholder="可选">${esc(g.note || '')}</textarea>`);
+}
+function openGoalForm(id) {
+  const g = id ? S.goals.find(x => x.id === id) : null;
+  formSheet(g ? '编辑目标' : '新建周期目标', goalFormHTML(g), '保存', async () => {
+    const title = fval('f-gtitle');
+    if (!title) return toast('请填写目标名称');
+    const from = fnum('f-gfrom'), to = fnum('f-gto');
+    if (from == null || to == null) return toast('请填写起始值与目标值');
+    const rec = g ? Object.assign(g, {}) : newRec({ catId: currentCatId, records: [] });
+    Object.assign(rec, {
+      title, startValue: from, targetValue: to, unit: fval('f-gunit'),
+      freq: fval('f-gfreq'), startDate: fval('f-gstart') || today(),
+      endDate: fval('f-gend') || null, note: fval('f-gnote'),
+      records: g ? (g.records || []) : []
+    });
+    await save('goals', rec);
+    closeSheet(); render(); toast(g ? '已更新' : '已创建');
+  });
+}
+ACT['add-goal'] = () => openGoalForm(null);
+ACT['edit-goal'] = el => openGoalForm(el.dataset.id);
+ACT['del-goal'] = el => {
+  const g = S.goals.find(x => x.id === el.dataset.id);
+  if (!g) return;
+  closeSheet();
+  setTimeout(() => confirmBox('删除这个目标？', `“${g.title}”及其全部进度记录将被删除。`, '删除', async () => {
+    await softDel('goals', g.id); render(); toast('已删除');
+  }), 280);
+};
+ACT['add-progress'] = el => {
+  const g = S.goals.find(x => x.id === el.dataset.id);
+  if (!g) return;
+  const s = goalStats(g);
+  formSheet('记录进度', field('当前值', `<input class="input num" type="number" step="0.01" id="f-pval" inputmode="decimal" placeholder="${s.cur}">`, g.unit ? `单位：${g.unit}` : '')
+    + field('日期', `<input class="input" type="date" id="f-pdate" value="${today()}">`), '记录', async () => {
+    const v = fnum('f-pval');
+    if (v == null) return toast('请填写当前值');
+    g.records = (g.records || []).concat([{ id: uid(), date: fval('f-pdate') || today(), value: v }]);
+    await save('goals', g);
+    closeSheet(); render();
+    const ns = goalStats(g);
+    toast(ns.done ? '目标达成' : `已记录，进度 ${ns.pct}%`);
+  });
+};
+ACT['goal-detail'] = el => {
+  const g = S.goals.find(x => x.id === el.dataset.id);
+  if (!g) return;
+  const recs = (g.records || []).slice().sort(byDateDesc);
+  const s = goalStats(g);
+  const pts = (g.records || []).slice().sort(byDateAsc).map(r => num(r.value));
+  openSheet(`${sheetHead(g.title)}
+    <div class="sheet-body">
+      <div class="stats">
+        <div class="stat"><div class="v num">${s.cur}</div><div class="k">当前值${g.unit ? '（' + esc(g.unit) + '）' : ''}</div></div>
+        <div class="stat"><div class="v num">${s.to}</div><div class="k">目标值</div></div>
+        <div class="stat"><div class="v num">${s.pct}<small>%</small></div><div class="k">完成度</div></div>
+      </div>
+      ${pts.length > 1 ? `<div class="card tight">${sparkSVG(pts)}</div>` : ''}
+      <div class="sec"><h2>进度记录</h2><span class="more num">${recs.length} 条</span></div>
+      ${recs.length ? `<div class="tl">${recs.map(r => `<div class="node brand">
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <span class="num" style="font-weight:750;font-size:17px">${num(r.value)}</span>
+          <span class="small muted">${esc(g.unit || '')}</span>
+          <span class="when" style="margin-left:auto">${esc(fmtMD(r.date))}</span>
+          <button class="iconbtn" style="width:28px;height:28px;color:var(--ink-3)" data-act="del-progress" data-gid="${g.id}" data-rid="${r.id}">${icon('trash', 'width:15px;height:15px')}</button>
+        </div></div>`).join('')}</div>`
+        : `<div class="small muted">还没有进度记录。</div>`}
+      ${g.note ? `<div class="card flat small dim" style="margin-top:14px">${esc(g.note)}</div>` : ''}
+    </div>
+    <div class="sheet-foot">
+      <button class="btn ghost" data-act="del-goal" data-id="${g.id}">删除目标</button>
+      <button class="btn primary" data-act="add-progress" data-id="${g.id}">记录进度</button>
+    </div>`, null);
+};
+ACT['del-progress'] = el => {
+  const g = S.goals.find(x => x.id === el.dataset.gid);
+  if (!g) return;
+  g.records = (g.records || []).filter(r => r.id !== el.dataset.rid);
+  save('goals', g).then(() => { closeSheet(); render(); toast('已删除该条'); });
+};
+/* ===================== 模块五：常用小知识 ===================== */
+const KCATS = ['新手入门', '喂养', '健康', '行为', '护理'];
+/* 内置知识库按需加载：进入知识页或首次播种时才拉取，减小首屏体积 */
+let KARTICLES = [];
+let _kLoading = null;
+function loadKArticles() {
+  if (KARTICLES.length) return Promise.resolve(KARTICLES);
+  if (_kLoading) return _kLoading;
+  _kLoading = new Promise(res => {
+    const s = document.createElement('script');
+    s.src = 'knowledge-data.js';
+    s.onload = () => { KARTICLES = window.KARTICLES_DATA || []; res(KARTICLES); };
+    s.onerror = () => { KARTICLES = []; res(KARTICLES); };
+    document.head.appendChild(s);
+  });
+  return _kLoading;
+}
+function kOfCat() { return ofCat('knowledge'); }
+function kMatch(k, q) {
+  if (!q) return true;
+  const s = `${k.title} ${k.tags || ''} ${String(k.body || '').replace(/<[^>]+>/g, ' ')}`.toLowerCase();
+  return s.indexOf(q.toLowerCase()) > -1;
+}
+function kCardHTML(k, q) {
+  return `<details class="kcard">
+    <summary>${esc(k.title)}${k.builtin ? '' : `<span class="tag brand" style="margin-left:auto">我的</span>`}</summary>
+    <div class="body">${k.body}${k.builtin ? '' : `<div class="btnrow" style="margin-top:14px">
+      <button class="btn ghost sm" data-act="edit-knowledge" data-id="${k.id}">编辑</button>
+      <button class="btn ghost sm" data-act="del-knowledge" data-id="${k.id}">删除</button></div>`}</div>
+  </details>`;
+}
+function kListHTML() {
+  const st = S.settings.kFilter || '全部', q = (S.settings.kQuery || '').trim();
+  const items = kOfCat().filter(k => st === '全部' || k.category === st).filter(k => kMatch(k, q));
+  if (!items.length) return emptyState('book', '没有匹配的知识', q ? `换个关键词试试，或清空搜索框。` : '这个分类下还没有内容。', '清空搜索', 'k-clear');
+  const groups = {};
+  items.forEach(k => { (groups[k.category] = groups[k.category] || []).push(k); });
+  return Object.keys(groups).map(c => `<div class="sec"><h2>${esc(c)}</h2><span class="more num">${groups[c].length}</span></div>
+    ${groups[c].map(k => kCardHTML(k, q)).join('')}`).join('');
+}
+routes.knowledge = {
+  title: '常用小知识',
+  top: () => topbar(`<button class="iconbtn" data-act="back" aria-label="返回">${icon('back')}</button>
+    <div style="flex:1;min-width:0"><h1>常用小知识</h1></div>
+    ${settingsBtnHTML()}`),
+  view: () => {
+    const st = S.settings.kFilter || '全部';
+    const q = S.settings.kQuery || '';
+    const items = [{ v: '全部', n: '全部' }].concat(KCATS.map(c => ({ v: c, n: c })));
+    return `
+      <div class="field" style="margin-bottom:12px">
+        <div style="position:relative">
+          <input class="input" id="kq" placeholder="搜索：疫苗、吐毛、软便、抓挠…" value="${esc(q)}" style="padding-left:38px">
+          <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);width:19px;height:19px;color:var(--ink-3)">${icon('search')}</span>
+        </div>
+      </div>
+      ${segHTML('kFilter', items, st)}
+      <div id="kList">${kListHTML()}</div>
+      <div class="btnrow" style="margin-top:18px"><button class="btn ghost" data-act="add-knowledge">${icon('plus', 'width:16px;height:16px;margin-right:6px')}写一条我自己的经验</button></div>
+      <div style="height:8px"></div>`;
+  },
+  after: () => {
+    const el = $('#kq');
+    if (!el) return;
+    el.addEventListener('input', () => {
+      S.settings.kQuery = el.value;
+      const box = $('#kList');
+      if (box) box.innerHTML = kListHTML();
+    });
+  }
+};
+ACT['k-clear'] = () => { S.settings.kQuery = ''; saveSettings(); render(); };
+ACT['del-knowledge'] = el => {
+  const k = S.knowledge.find(x => x.id === el.dataset.id);
+  if (!k) return;
+  confirmBox('删除这条笔记？', `“${k.title}”将被删除。`, '删除', async () => {
+    await softDel('knowledge', k.id); render(); toast('已删除');
+  });
+};
+ACT['add-knowledge'] = () => openKForm(null);
+ACT['edit-knowledge'] = el => openKForm(el.dataset.id);
+function openKForm(id) {
+  const k = id ? S.knowledge.find(x => x.id === id) : null;
+  const body = field('分类', `<div class="chips" id="f-kcat">${KCATS.map(c =>
+    `<button type="button" class="chip${(k ? k.category : KCATS[0]) === c ? ' on' : ''}" data-act="pick-kcat" data-c="${c}">${c}</button>`).join('')}</div>`)
+    + field('标题', `<input class="input" id="f-ktitle" placeholder="如：猫喝水量怎么判断够不够" value="${esc(k ? k.title : '')}">`)
+    + field('关键词', `<input class="input" id="f-ktags" placeholder="空格分隔，便于搜索：喝水 泌尿" value="${esc(k ? k.tags : '')}">`)
+    + field('内容', `<textarea class="textarea" id="f-kbody" placeholder="记下要点，支持换行">${esc(k ? String(k.body || '').replace(/<[^>]+>/g, '') : '')}</textarea>`, '纯文本，保存后自动成段。');
+  formSheet(k ? '编辑知识' : '写一条经验', body, '保存', async () => {
+    const sel = $('#f-kcat .chip.on');
+    const title = fval('f-ktitle');
+    if (!title) return toast('请填写标题');
+    const text = fval('f-kbody');
+    const html = text.split(/\n+/).filter(Boolean).map(p => `<p>${esc(p)}</p>`).join('');
+    const rec = k ? Object.assign(k, {}) : newRec({ catId: currentCatId, builtin: false });
+    Object.assign(rec, { category: sel ? sel.dataset.c : KCATS[0], title, tags: fval('f-ktags'), body: html });
+    await save('knowledge', rec);
+    closeSheet(); render(); toast(k ? '已更新' : '已保存');
+  });
+}
+ACT['pick-kcat'] = el => { $$('#f-kcat .chip').forEach(b => b.classList.toggle('on', b === el)); };
+async function seedKnowledge() {
+  await loadKArticles();
+  const have = new Set(S.knowledge.map(k => k.title));
+  const add = KARTICLES.filter(a => !have.has(a.title)).map(a => newRec({ catId: null, builtin: true, category: a.category, title: a.title, tags: a.tags, body: a.body }));
+  return add.length ? Promise.all(add.map(r => save('knowledge', r))) : Promise.resolve();
+}
+/* ===================== 模块六：照片相册 ===================== */
+function photosOf() { return S.photos.filter(p => p.catId === currentCatId).sort(byDateDesc); }
+/* 列表 / 头像等小尺寸场景统一走缩略图，省内存 */
+const thumbOf = id => S.thumbURLs[id] || S.photoURLs[id] || '';
+/* 原图 URL（照片详情、首页背景等使用） */
+async function ensurePhotoURL(key) {
+  if (!key) return null;
+  if (!S.photoURLs[key]) {
+    const b = await idbGet('blobs', key);
+    if (!b) return null;
+    S.photoURLs[key] = URL.createObjectURL(b);
+  }
+  /* 缩略图：旧数据没有的话回退用原图 */
+  if (!S.thumbURLs[key]) {
+    const tb = await idbGet('blobs', key + ':thumb');
+    S.thumbURLs[key] = tb ? URL.createObjectURL(tb) : S.photoURLs[key];
+  }
+  return S.photoURLs[key];
+}
+async function preloadPhotoURLs() {
+  for (const p of S.photos) await ensurePhotoURL(p.id);
+}
+function revokePhotoURLs(id) {
+  const a = S.photoURLs[id], b = S.thumbURLs[id];
+  if (a) { URL.revokeObjectURL(a); delete S.photoURLs[id]; }
+  if (b && b !== a) URL.revokeObjectURL(b);
+  delete S.thumbURLs[id];
+}
+/* 编码能力检测：优先 WebP，不支持则回退 JPEG */
+const IMG_TYPE = (() => {
+  try {
+    const c = document.createElement('canvas'); c.width = c.height = 1;
+    return c.toDataURL('image/webp').indexOf('image/webp') === 1 ? 'image/webp' : 'image/jpeg';
+  } catch (e) { return 'image/jpeg'; }
+})();
+function loadImg(file) {
+  return new Promise(res => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => { URL.revokeObjectURL(url); res(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); res(null); };
+    img.src = url;
+  });
+}
+function shrink(img, maxSide) {
+  const w = img.naturalWidth, h = img.naturalHeight;
+  const s = Math.min(1, maxSide / Math.max(w, h));
+  const cv = document.createElement('canvas');
+  cv.width = Math.max(1, Math.round(w * s));
+  cv.height = Math.max(1, Math.round(h * s));
+  cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+  return cv;
+}
+function cvToBlob(cv, q) {
+  return new Promise(res => {
+    try { cv.toBlob ? cv.toBlob(b => res(b || null), IMG_TYPE, q) : res(null); }
+    catch (e) { res(null); }
+  });
+}
+/* 压缩：主图最长边 maxSide + 400 缩略图，返回 {blob, thumb, width, height} */
+async function fileToBlob(file, maxSide = 1600) {
+  const img = await loadImg(file);
+  if (!img) return { blob: file, thumb: file, width: 0, height: 0 };
+  const cv = shrink(img, maxSide), tc = shrink(img, 400);
+  const blob = (await cvToBlob(cv, 0.82)) || file;
+  const thumb = (await cvToBlob(tc, 0.76)) || blob;
+  return { blob, thumb, width: cv.width, height: cv.height };
+}
+/* 落库一张照片（主图 + 缩略图） */
+async function putPhoto(f, maxSide = 1600, catId = currentCatId) {
+  const { blob, thumb, width, height } = await fileToBlob(f, maxSide);
+  const rec = newRec({ catId, caption: '', date: today(), size: blob.size, width, height });
+  await idbPut('blobs', blob, rec.id);
+  await idbPut('blobs', thumb, rec.id + ':thumb');
+  await save('photos', rec);
+  S.photoURLs[rec.id] = URL.createObjectURL(blob);
+  S.thumbURLs[rec.id] = URL.createObjectURL(thumb);
+  return rec;
+}
+async function handlePhotoFiles(files) {
+  const list = Array.from(files || []).filter(f => /^image\//.test(f.type));
+  if (!list.length) return toast('请选择图片文件');
+  /* 处理期间用骨架屏占位，处理完再整页刷新 */
+  if (curRoute.name === 'photos') {
+    const grid = $('.pgrid');
+    if (grid) grid.insertAdjacentHTML('beforeend',
+      `<div class="skel-grid" style="grid-column:1/-1;margin-top:6px">${'<i></i>'.repeat(Math.min(6, list.length + 2))}</div>`);
+  }
+  let ok = 0;
+  for (const f of list) { try { await putPhoto(f); ok++; } catch (e) { /* 失败原因已由 handleDbError 统一提示 */ } }
+  render();
+  toast(ok ? (ok > 1 ? `已添加 ${ok} 张` : '已添加 1 张') : '照片保存失败');
+}
+ACT['add-photo'] = () => { const el = $('#photoInput'); if (el) el.click(); };
+ACT['take-photo'] = () => { const el = $('#cameraInput'); if (el) el.click(); };
+ACT['del-photo'] = el => {
+  const p = S.photos.find(x => x.id === el.dataset.id);
+  if (!p) return;
+  confirmBox('删除这张照片？', p.caption || fmtMD(p.date), '删除', async () => {
+    await idbDel('blobs', p.id);
+    await idbDel('blobs', p.id + ':thumb');
+    revokePhotoURLs(p.id);
+    if (curCat() && curCat().avatarKey === p.id) { const c = curCat(); c.avatarKey = null; await save('cats', c); }
+    await softDel('photos', p.id);
+    closeSheet(); render(); toast('已删除');
+  });
+};
+ACT['photo-view'] = el => {
+  const p = S.photos.find(x => x.id === el.dataset.id);
+  if (!p) return;
+  const c = curCat();
+  const isAvatar = c && c.avatarKey === p.id;
+  const url = S.photoURLs[p.id] || '';
+  openSheet(`${sheetHead(p.caption || fmtMD(p.date))}
+    <div class="sheet-body">
+      <img src="${url}" alt="${esc(p.caption || '照片')}" width="${p.width || 1000}" height="${p.height || 1000}" decoding="async" style="width:100%;height:auto;border-radius:var(--r-lg);display:block;margin-bottom:14px">
+      <div class="card flat small dim">拍摄 / 添加日期：${esc(fmtMD(p.date))}　文件大小：${p.size ? Math.round(p.size / 1024) + ' KB' : '—'}</div>
+      <div class="btnrow"><button class="btn ghost" data-act="edit-photo" data-id="${p.id}">改说明</button>
+        <button class="btn ${isAvatar ? 'ghost' : 'primary'}" data-act="pick-avatar-from-photo" data-id="${p.id}">${isAvatar ? '取消头像' : '设为头像'}</button></div>
+      <div class="btnrow"><button class="btn danger" data-act="del-photo" data-id="${p.id}">删除这张照片</button></div>
+    </div>`, null);
+};
+ACT['edit-photo'] = el => {
+  const p = S.photos.find(x => x.id === el.dataset.id);
+  if (!p) return;
+  closeSheet();
+  setTimeout(() => formSheet('编辑照片', field('说明', `<input class="input" id="f-pcaption" placeholder="如：第一次剪指甲" value="${esc(p.caption || '')}">`)
+    + field('日期', `<input class="input" type="date" id="f-pdate" value="${p.date || today()}">`), '保存', async () => {
+    p.caption = fval('f-pcaption'); p.date = fval('f-pdate') || today();
+    await save('photos', p); closeSheet(); render(); toast('已更新');
+  }), 280);
+};
+ACT['pick-avatar-from-photo'] = async el => {
+  const p = S.photos.find(x => x.id === el.dataset.id);
+  const c = curCat();
+  if (!p || !c) return;
+  c.avatarKey = (c.avatarKey === p.id) ? null : p.id;
+  await save('cats', c);
+  closeSheet(); render(); toast(c.avatarKey ? '已设为头像' : '已取消头像');
+};
+routes.photo = {
+  title: '照片相册',
+  top: () => topbar(`<button class="iconbtn" data-act="back" aria-label="返回">${icon('back')}</button>
+    <div style="flex:1;min-width:0"><h1>照片相册</h1></div>
+    ${settingsBtnHTML()}`),
+  view: () => {
+    const list = photosOf();
+    const totalMB = list.reduce((a, p) => a + num(p.size), 0) / 1048576;
+    return `
+      <input type="file" id="photoInput" accept="image/*" multiple hidden>
+      <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
+      <div class="btnrow" style="margin-top:0">
+        <button class="btn primary" data-act="take-photo">${icon('camera', 'width:17px;height:17px;margin-right:6px')}拍照</button>
+        <button class="btn ghost" data-act="add-photo">${icon('image', 'width:17px;height:17px;margin-right:6px')}从相册选</button>
+      </div>
+      <div class="sec"><h2>共 ${list.length} 张</h2><span class="more">本机存储 ${totalMB ? totalMB.toFixed(1) + ' MB' : '0 MB'}</span></div>
+      ${list.length ? `<div class="pgrid">
+        <button class="pick" data-act="add-photo">${icon('plus', 'width:22px;height:22px')}<span>添加</span></button>
+        ${list.map(p => `<figure data-act="photo-view" data-id="${p.id}">
+          <img src="${thumbOf(p.id)}" alt="${esc(p.caption || '照片')}" loading="lazy" decoding="async" width="400" height="400">
+          <span class="del" data-act="del-photo" data-id="${p.id}" role="button" tabindex="0" aria-label="删除照片">${icon('trash', 'width:13px;height:13px')}</span>
+          ${p.caption ? `<figcaption class="cap">${esc(p.caption)}</figcaption>` : ''}
+        </figure>`).join('')}
+      </div>`
+        : emptyState('image', '还没有照片', '记录它长大的样子：打盹、拆家、第一次看窗外。照片只存在这台设备上。', '选第一张照片', 'add-photo')}
+      <div class="card flat small dim" style="margin-top:16px">照片保存在本机浏览器数据库里，不会上传。请在「更多 → 设置」里定期导出备份，清空浏览器数据会丢失照片。</div>
+      <div style="height:8px"></div>`;
+  },
+  after: () => {
+    const handler = e => { const f = e.target.files; e.target.value = ''; handlePhotoFiles(f); };
+    const a = $('#photoInput'), b = $('#cameraInput');
+    if (a) a.addEventListener('change', handler);
+    if (b) b.addEventListener('change', handler);
+  }
+};
+/* ===================== 模块七：猫咪档案 ===================== */
+const catById = id => S.cats.find(c => c.id === id) || null;
+const GENDERS = [{ v: 'girl', n: '妹妹' }, { v: 'boy', n: '弟弟' }, { v: '', n: '不确定' }];
+const genderText = g => (GENDERS.find(x => x.v === (g || '')) || GENDERS[2]).n;
+/* 宠物种类与品种预设（支持猫以外的宠物） */
+const SPECIES = [
+  { v: 'cat', n: '猫' }, { v: 'dog', n: '狗' }, { v: 'rabbit', n: '兔子' },
+  { v: 'bird', n: '鸟' }, { v: 'hamster', n: '仓鼠' }, { v: 'other', n: '其他' }
+];
+const BREEDS = {
+  cat: ['中华田园猫', '橘猫', '狸花猫', '英国短毛猫', '美国短毛猫', '布偶猫', '暹罗猫', '蓝猫', '银渐层', '折耳猫', '波斯猫', '加菲猫', '缅因猫', '无毛猫'],
+  dog: ['中华田园犬', '泰迪', '比熊', '柯基', '金毛', '拉布拉多', '哈士奇', '博美', '柴犬', '边牧', '雪纳瑞', '吉娃娃'],
+  rabbit: ['侏儒兔', '垂耳兔', '狮子兔', '安哥拉兔', '荷兰兔', '熊猫兔'],
+  bird: ['虎皮鹦鹉', '玄凤鹦鹉', '牡丹鹦鹉', '八哥', '文鸟', '金丝雀'],
+  hamster: ['金丝熊', '布丁仓鼠', '银狐仓鼠', '三线仓鼠', '罗伯罗夫斯基仓鼠'],
+  other: ['其他']
+};
+const PERSONALITY_OPTS = ['亲人', '黏人', '活泼', '胆小', '怕生', '独立', '安静', '温柔', '好动', '爱叫', '贪吃', '高冷', '护食', '认生'];
+function speciesName(c) { return (SPECIES.find(s => s.v === ((c && c.species) || 'cat')) || SPECIES[0]).n; }
+/* 下拉选择框：预设选项 + 「其他（自定义）」手动输入 */
+const CUSTOM_OPT = '__custom__';
+function comboHTML(id, opts, val, placeholder = '请选择') {
+  val = val || '';
+  const list = (opts || []).slice();
+  const isCustom = val && list.indexOf(val) < 0;
+  const options = [`<option value="">${esc(placeholder)}</option>`]
+    .concat(list.map(o => `<option value="${esc(o)}"${o === val ? ' selected' : ''}>${esc(o)}</option>`))
+    .concat([`<option value="${CUSTOM_OPT}"${isCustom ? ' selected' : ''}>其他（自定义）</option>`]);
+  return `<div id="${id}-wrap">
+    <select class="select" id="${id}">${options.join('')}</select>
+    <input class="input" id="${id}-x" placeholder="手动输入" value="${isCustom ? esc(val) : ''}" style="margin-top:8px;${isCustom ? '' : 'display:none'}">
+  </div>`;
+}
+function comboVal(id) {
+  const s = document.getElementById(id); if (!s) return '';
+  if (s.value === CUSTOM_OPT) { const x = document.getElementById(id + '-x'); return x ? x.value.trim() : ''; }
+  return s.value;
+}
+function bindCombo(id) {
+  const s = document.getElementById(id); if (!s) return;
+  const x = document.getElementById(id + '-x'); if (!x) return;
+  const sync = () => {
+    x.style.display = s.value === CUSTOM_OPT ? '' : 'none';
+    if (s.value === CUSTOM_OPT) x.focus();
+  };
+  s.addEventListener('change', sync);
+  sync();
+}
+function avatarHTML(c, style = '') {
+  const url = c && c.avatarKey ? thumbOf(c.avatarKey) : null;
+  return `<span class="avatar lg" style="background:var(--surface-2);color:var(--ink-2);${style}">
+    ${url ? `<img src="${url}" alt="">` : icon('paw', 'width:34px;height:34px')}</span>`;
+}
+function catStats(c) {
+  const id = c.id;
+  return {
+    health: S.health.filter(x => x.catId === id).length,
+    photos: S.photos.filter(x => x.catId === id).length,
+    goals: S.goals.filter(x => x.catId === id).length,
+    spend: S.expenses.filter(x => x.catId === id).reduce((a, e) => a + num(e.amount), 0)
+  };
+}
+routes.cat = {
+  title: '宠物档案',
+  top: args => {
+    const c = catById(args[0]) || curCat();
+    return topWithBack('宠物档案', (c
+      ? `<button class="iconbtn" data-act="edit-cat" data-id="${c.id}" aria-label="编辑档案">${icon('edit')}</button>`
+      : `<button class="iconbtn" data-act="add-cat" aria-label="新建档案">${icon('plus')}</button>`) + settingsBtnHTML());
+  },
+  view: args => {
+    const c = catById(args[0]) || curCat();
+    if (!c) return emptyState('paw', '还没有宠物档案', '先建一份档案，填上名字、生日、品种，其他模块都会跟着它走。', '创建宠物档案', 'add-cat');
+    const s = catStats(c);
+    const rows = [
+      ['宠物类型', speciesName(c)],
+      ['生日', c.birthday ? `${fmtYMD(c.birthday)}（${ageText(c.birthday)}）` : ''],
+      ['性别', genderText(c.gender)],
+      ['品种', c.breed],
+      ['到家日期', c.adoptDate ? fmtYMD(c.adoptDate) : ''],
+      ['是否绝育', c.sterilized === true ? '已绝育' : c.sterilized === false ? '未绝育' : ''],
+      ['芯片 / 宠物号', c.microchip],
+      ['性格', c.personality],
+      ['习惯', c.habit],
+      ['忌口', c.taboo],
+      ['常去医院', c.vet],
+      ['其他备注', c.note]
+    ].filter(r => r[1]);
+    return `
+      <div class="card" style="display:flex;align-items:center;gap:16px">
+        ${avatarHTML(c)}
+        <div style="flex:1;min-width:0">
+          <div style="font-size:var(--fs-xl);font-weight:750;letter-spacing:-.02em">${esc(c.name)}</div>
+          <div class="small muted" style="margin-top:3px">${esc(speciesName(c))}${c.breed ? ' · ' + esc(c.breed) : ''} · ${esc(genderText(c.gender))}${c.birthday ? ' · ' + esc(ageText(c.birthday)) : ''}</div>
+          ${c.id === currentCatId ? `<span class="tag brand" style="margin-top:8px">当前宠物</span>` : `<button class="btn ghost sm" style="margin-top:8px" data-act="set-cat" data-id="${c.id}">切换为当前宠物</button>`}
+        </div>
+      </div>
+
+      <div class="stats" style="margin-top:14px">
+        <div class="stat"><div class="v num">${s.health}</div><div class="k">健康记录</div></div>
+        <div class="stat"><div class="v num">${s.photos}</div><div class="k">照片</div></div>
+        <div class="stat"><div class="v num">${s.goals}</div><div class="k">目标</div></div>
+      </div>
+      <div class="card flat" style="display:flex;align-items:center;gap:10px">
+        <span class="small muted">累计开销</span>
+        <span class="num" style="margin-left:auto;font-weight:750;font-size:var(--fs-lg)">¥ ${yuan(s.spend)}</span>
+      </div>
+
+      <div class="sec"><h2>档案信息</h2></div>
+      ${rows.length ? `<div class="list">${rows.map(r => `<div class="row"><div class="grow"><div class="d" style="margin:0">${r[0]}</div>
+        <div class="t" style="font-weight:600;font-size:var(--fs-sm)">${esc(String(r[1]))}</div></div></div>`).join('')}</div>`
+        : `<div class="card flat small dim">档案还很空，点右上角编辑补上生日、品种这些吧。</div>`}
+
+      <div class="btnrow"><button class="btn ghost" data-act="edit-cat" data-id="${c.id}">编辑档案</button>
+        <button class="btn ghost" data-act="del-cat" data-id="${c.id}">删除档案</button></div>
+      <div style="height:8px"></div>`;
+  }
+};
+ACT['add-cat'] = () => openCatForm(null);
+ACT['edit-cat'] = el => openCatForm(el.dataset.id);
+function catAvatarPreviewHTML(key) {
+  const url = key && thumbOf(key) ? thumbOf(key) : null;
+  return `<span class="avatar lg" id="f-cavatar-preview" style="background:var(--surface-2);color:var(--ink-2)">
+    ${url ? `<img src="${url}" alt="">` : icon('paw', 'width:34px;height:34px')}</span>`;
+}
+function setCatAvatarKey(key) {
+  const h = $('#f-cavatar-key'); if (h) h.value = key || '';
+  const pv = $('#f-cavatar-preview'); if (pv) pv.outerHTML = catAvatarPreviewHTML(key);
+  $$('#f-cavatar .chip').forEach(b => b.classList.toggle('on', (b.dataset.key || '') === (key || '')));
+}
+function openCatForm(id) {
+  const c = id ? catById(id) : null;
+  const ownerCatId = c ? c.id : currentCatId;
+  const curSpecies = (c && c.species) || 'cat';
+  const plist = S.photos.filter(p => p.catId === ownerCatId);
+  const pendingIds = [];
+  const avatarField = field('头像', `
+    <div style="display:flex;align-items:center;gap:14px">
+      ${catAvatarPreviewHTML(c ? c.avatarKey : null)}
+      <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+        <button type="button" class="btn ghost sm" data-act="cat-avatar-upload">上传照片 / 拍照</button>
+        <button type="button" class="btn ghost sm" data-act="cat-avatar-clear">不用头像</button>
+        <input type="hidden" id="f-cavatar-key" value="${c && c.avatarKey ? c.avatarKey : ''}">
+        <input type="file" id="catAvatarInput" accept="image/*" hidden>
+      </div>
+    </div>
+    ${plist.length ? `<div class="chips" id="f-cavatar" style="margin-top:12px">${plist.map(p =>
+      `<button type="button" class="chip${c && c.avatarKey === p.id ? ' on' : ''}" data-act="pick-avatar" data-key="${p.id}" style="display:inline-flex;align-items:center">
+        <img src="${thumbOf(p.id)}" alt="" style="width:18px;height:18px;border-radius:6px;object-fit:cover;margin-right:6px">${esc(p.caption || fmtMD(p.date))}</button>`).join('')}</div>`
+      : `<div class="small muted" style="margin-top:10px">相册里还没有照片，点上面按钮直接上传一张当头像。</div>`}
+  `, '可以现在就上传，之后也能在相册里更换。');
+  const body = avatarField
+    + field('名字', `<input class="input" id="f-cname" placeholder="如：年糕" value="${esc(c ? c.name : '')}">`)
+    + `<div class="grid2">`
+    + field('宠物类型', `<select class="select" id="f-cspecies">${SPECIES.map(s =>
+      `<option value="${s.v}"${curSpecies === s.v ? ' selected' : ''}>${s.n}</option>`).join('')}</select>`)
+    + field('性别', `<select class="select" id="f-cgender">${GENDERS.map(g =>
+      `<option value="${g.v}"${(c ? (c.gender || '') : '') === g.v ? ' selected' : ''}>${g.n}</option>`).join('')}</select>`)
+    + `</div>`
+    + field('品种', comboHTML('f-cbreed', BREEDS[curSpecies] || [], c ? c.breed : '', '选择品种'))
+    + `<div class="grid2">`
+    + field('生日', `<input class="input" type="date" id="f-cbirthday" value="${c && c.birthday ? c.birthday : ''}">`)
+    + field('到家日期', `<input class="input" type="date" id="f-cadopt" value="${c && c.adoptDate ? c.adoptDate : ''}">`)
+    + `</div>`
+    + `<div class="switch"><input type="checkbox" id="f-cster"${c && c.sterilized ? ' checked' : ''}><label for="f-cster" style="cursor:pointer">已绝育</label></div>`
+    + field('芯片 / 宠物号', `<input class="input" id="f-cchip" placeholder="可选" value="${esc(c ? c.microchip : '')}">`)
+    + `<div class="grid2">`
+    + field('性格', comboHTML('f-cperson', PERSONALITY_OPTS, c ? c.personality : '', '选择性格'))
+    + field('习惯', `<input class="input" id="f-chabit" placeholder="爱躲纸箱 / 半夜跑酷…" value="${esc(c ? c.habit : '')}">`)
+    + `</div>`
+    + `<div class="grid2">`
+    + field('忌口', `<input class="input" id="f-ctaboo" placeholder="乳糖不耐 / 对鱼过敏…" value="${esc(c ? c.taboo : '')}">`)
+    + field('常去医院', `<input class="input" id="f-cvet" placeholder="医院 / 医生电话" value="${esc(c ? c.vet : '')}">`)
+    + `</div>`
+    + field('其他备注', `<textarea class="textarea" id="f-cnote" placeholder="还有想记的，写在这里">${esc(c ? c.note : '')}</textarea>`);
+  formSheet(c ? '编辑宠物档案' : '新建宠物档案', body, '保存', async () => {
+    const name = fval('f-cname');
+    if (!name) return toast('请填写名字');
+    const rec = c ? Object.assign(c, {}) : newRec({});
+    Object.assign(rec, {
+      name, species: fval('f-cspecies') || 'cat', gender: fval('f-cgender'), breed: comboVal('f-cbreed'),
+      birthday: fval('f-cbirthday') || null, adoptDate: fval('f-cadopt') || null,
+      sterilized: fchk('f-cster'), microchip: fval('f-cchip'),
+      personality: comboVal('f-cperson'), habit: fval('f-chabit'),
+      taboo: fval('f-ctaboo'), vet: fval('f-cvet'), note: fval('f-cnote'),
+      avatarKey: fval('f-cavatar-key') || null
+    });
+    await save('cats', rec);
+    for (const pid of pendingIds) { const pr = S.photos.find(x => x.id === pid); if (pr) { pr.catId = rec.id; await save('photos', pr); } }
+    if (!c) { currentCatId = rec.id; await saveSettings(); }
+    closeSheet(); render(); toast(c ? '已更新' : '档案已创建');
+  });
+  bindCombo('f-cbreed'); bindCombo('f-cperson');
+  const spSel = $('#f-cspecies');
+  if (spSel) spSel.addEventListener('change', () => {
+    const wrap = $('#f-cbreed-wrap');
+    if (wrap) wrap.outerHTML = comboHTML('f-cbreed', BREEDS[spSel.value] || [], '', '选择品种');
+    bindCombo('f-cbreed');
+  });
+  const input = $('#catAvatarInput');
+  if (input) input.addEventListener('change', async e => {
+    const f = e.target.files[0]; e.target.value = '';
+    if (!f) return;
+    if (!/^image\//.test(f.type)) return toast('请选择图片');
+    toast('正在处理头像…');
+    const rec = await putPhoto(f, 720, ownerCatId);
+    rec.caption = '头像';
+    await save('photos', rec);
+    pendingIds.push(rec.id);
+    setCatAvatarKey(rec.id);
+    toast('头像已设置，记得保存');
+  });
+}
+ACT['pick-avatar'] = el => setCatAvatarKey(el.dataset.key || '');
+ACT['cat-avatar-clear'] = () => setCatAvatarKey('');
+ACT['cat-avatar-upload'] = () => { const el = $('#catAvatarInput'); if (el) el.click(); };
+ACT['del-cat'] = el => {
+  const c = catById(el.dataset.id);
+  if (!c) return;
+  confirmBox(`删除「${c.name}」的档案？`, '该档案下的健康记录、待办、账目、目标、照片都会一并删除，无法恢复。', '全部删除', async () => {
+    for (const st of ['todos', 'health', 'expenses', 'goals', 'photos', 'knowledge']) {
+      for (const r of S[st].filter(x => x.catId === c.id)) {
+        if (st === 'photos') {
+          await idbDel('blobs', r.id);
+          await idbDel('blobs', r.id + ':thumb');
+          revokePhotoURLs(r.id);
+        }
+        await softDel(st, r.id);
+      }
+    }
+    await softDel('cats', c.id);
+    if (currentCatId === c.id) { currentCatId = S.cats[0] ? S.cats[0].id : null; await saveSettings(); }
+    nav('/more'); render(); toast('档案已删除');
+  });
+};
+/* ===================== 更多 / 首页 / 设置 ===================== */
+function entryHTML(href, iconName, label, sub) {
+  return `<a class="card" href="${href}" style="display:flex;flex-direction:column;align-items:center;gap:7px;padding:18px 8px;text-align:center;text-decoration:none;color:inherit">
+    <span style="width:42px;height:42px;border-radius:14px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center">${icon(iconName, 'width:21px;height:21px')}</span>
+    <span style="font-weight:650;font-size:var(--fs-sm)">${esc(label)}</span>
+    ${sub ? `<span class="small muted" style="margin-top:-3px">${esc(sub)}</span>` : ''}
+  </a>`;
+}
+routes.more = {
+  title: '更多',
+  top: () => topbar(`${catSwitcherHTML()}${settingsBtnHTML()}`),
+  view: () => {
+    const gl = S.goals.filter(g => g.catId === currentCatId).length;
+    const ph = photosOf().length;
+    const kl = kOfCat().length;
+    return `
+      <div class="sec" style="margin-top:4px"><h2>功能</h2></div>
+      <div class="grid2">
+        ${entryHTML('#/cat', 'paw', '宠物档案', '资料与头像')}
+        ${entryHTML('#/goal', 'target', '周期目标', gl ? `${gl} 个进行中` : '减重 / 训练计划')}
+        ${entryHTML('#/knowledge', 'book', '常用小知识', `${kl} 条内容`)}
+        ${entryHTML('#/photo', 'image', '照片相册', ph ? `${ph} 张` : '记录成长')}
+        ${entryHTML('#/settings', 'database', '数据备份', '导出 / 导入')}
+      </div>
+
+      <div class="sec"><h2>我的宠物</h2><span class="more num">${S.cats.length} 只</span></div>
+      <div class="list">
+        ${S.cats.map(c => `<a class="row" href="#/cat/${c.id}" style="text-decoration:none;color:inherit">
+          <span class="avatar">${c.avatarKey && thumbOf(c.avatarKey) ? `<img src="${thumbOf(c.avatarKey)}" alt="">` : icon('paw', 'width:22px;height:22px')}</span>
+          <div class="grow"><div class="t">${esc(c.name)}${c.id === currentCatId ? ' <span class="tag brand">当前</span>' : ''}</div>
+            <div class="d">${esc(c.breed || '未填品种')}${c.birthday ? ' · ' + esc(ageText(c.birthday)) : ''}</div></div>
+          ${icon('chev')}</a>`).join('')}
+        <div class="row" data-act="add-cat" role="button" tabindex="0">
+          <span class="avatar" style="background:var(--brand-soft);color:var(--brand)">${icon('plus', 'width:22px;height:22px')}</span>
+          <div class="grow"><div class="t">新建宠物档案</div></div>
+        </div>
+      </div>
+
+      <div class="card flat small dim" style="margin-top:18px;line-height:1.75">
+        所有数据都保存在这台设备的浏览器里，断网也能用。想装成手机 App：在手机浏览器打开本页，菜单里选「添加到主屏幕」，就会像 App 一样全屏启动。
+      </div>
+      <div style="height:8px"></div>`;
+  }
+};
+
+/* ===================== 纪念日 ===================== */
+const ANNIV_ICONS = ['gift', 'calendar', 'heart', 'paw', 'home', 'bell'];
+const ANNIV_COLORS = ['#C4622D', '#4E7A66', '#B0801F', '#8A5A8F', '#3F7FA6', '#B23A2F'];
+function nextAnnivDate(dateStr, repeat) {
+  if (!dateStr) return null;
+  const ds = String(dateStr).slice(0, 10);
+  if (repeat !== 'year') return ds;
+  const t = today();
+  const md = ds.slice(5);
+  let cand = t.slice(0, 4) + '-' + md;
+  if (cand < t) cand = (Number(t.slice(0, 4)) + 1) + '-' + md;
+  return cand;
+}
+function annivItems() {
+  const c = curCat(); if (!c) return [];
+  const arr = [];
+  if (c.birthday) arr.push({ id: 'birthday', title: `${c.name}的生日`, date: nextAnnivDate(c.birthday, 'year'), repeat: 'year', icon: 'gift' });
+  if (c.adoptDate) arr.push({ id: 'adopt', title: `${c.name}到家纪念`, date: nextAnnivDate(c.adoptDate, 'year'), repeat: 'year', icon: 'home' });
+  (c.anniversaries || []).forEach(a => {
+    if (!a || !a.date) return;
+    arr.push({ id: a.id, title: a.title || '纪念日', date: nextAnnivDate(a.date, a.repeat), repeat: a.repeat || 'year', icon: a.icon || 'calendar', custom: true });
+  });
+  return arr.map(x => ({ ...x, days: x.date ? diffDays(today(), x.date) : 0 }))
+    .sort((a, b) => a.days - b.days);
+}
+function annivSectionHTML() {
+  const items = annivItems();
+  const head = `<div class="anniv-head"><span class="t">纪念日</span>
+    <button class="mini" data-act="manage-anniv">管理</button></div>`;
+  if (!items.length) {
+    return `<div class="anniv-wrap">${head}
+      <div class="anniv">
+        <span class="an-ico" style="background:var(--brand)">${icon('calendar', 'width:22px;height:22px')}</span>
+        <div class="an-tx"><div class="an-t">还没有纪念日</div><div class="an-d">记录生日、到家日等重要日期，这里会显示倒计时</div></div>
+        <button class="btn ghost sm" style="flex:none" data-act="add-anniv">添加</button>
+      </div></div>`;
+  }
+  const stage = items.map((x, i) => {
+    const col = ANNIV_COLORS[i % ANNIV_COLORS.length];
+    const past = x.repeat !== 'year' && x.days < 0;
+    const cd = past ? '-' + Math.abs(x.days) : x.days;
+    const unit = x.days === 0 ? '就是今天' : past ? '天前' : '天后';
+    return `<div class="an-slide anniv${i === 0 ? ' on' : ''}">
+      <span class="an-ico" style="background:${col}">${icon(x.icon, 'width:22px;height:22px')}</span>
+      <div class="an-tx"><div class="an-t">${esc(x.title)}</div>
+        <div class="an-d">${esc(fmtYMD(x.date))} · ${x.repeat === 'year' ? '每年' : '仅一次'}</div></div>
+      <div class="an-cd"><div class="big num">${cd}</div><div class="unit">${unit}</div></div>
+    </div>`;
+  }).join('');
+  const dots = items.length > 1 ? `<div class="anniv-dots">${items.map((x, i) => `<i class="${i === 0 ? 'on' : ''}"></i>`).join('')}</div>` : '';
+  return `<div class="anniv-wrap">${head}<div class="anniv-stage" id="annivStage">${stage}</div>${dots}</div>`;
+}
+function startAnnivCarousel() {
+  const stage = $('#annivStage');
+  if (!stage) return;
+  const slides = $$('.an-slide', stage);
+  if (slides.length < 2) return;
+  const dots = $$('.anniv-dots i');
+  let i = 0;
+  annivTimer = setInterval(() => {
+    slides[i].classList.remove('on'); if (dots[i]) dots[i].classList.remove('on');
+    i = (i + 1) % slides.length;
+    slides[i].classList.add('on'); if (dots[i]) dots[i].classList.add('on');
+  }, 4200);
+}
+function openAnnivForm(id) {
+  const c = curCat(); if (!c) return;
+  const a = id ? (c.anniversaries || []).find(x => x.id === id) : null;
+  const body =
+    field('名称', `<input class="input" id="f-antitle" placeholder="如：领养纪念日 / 首次体检" value="${esc(a ? a.title : '')}">`)
+    + field('日期', `<input class="input" type="date" id="f-andate" value="${a && a.date ? String(a.date).slice(0, 10) : today()}">`)
+    + field('重复方式', `<select class="select" id="f-anrepeat">
+        <option value="year"${(!a || a.repeat === 'year') ? ' selected' : ''}>每年重复（生日 / 纪念日）</option>
+        <option value="once"${a && a.repeat === 'once' ? ' selected' : ''}>仅一次</option></select>`)
+    + field('图标', `<div class="chips" id="f-anicon">${ANNIV_ICONS.map(ic =>
+      `<button type="button" class="chip${(a ? a.icon : 'calendar') === ic ? ' on' : ''}" data-act="pick-anicon" data-ic="${ic}" style="display:inline-flex;align-items:center;gap:6px">${icon(ic, 'width:15px;height:15px')}</button>`).join('')}</div>`);
+  formSheet(a ? '编辑纪念日' : '添加纪念日', body, '保存', async () => {
+    const title = fval('f-antitle');
+    const date = fval('f-andate');
+    if (!title) return toast('请填写名称');
+    if (!date) return toast('请选择日期');
+    const on = $('#f-anicon .chip.on');
+    const iconName = on ? on.dataset.ic : 'calendar';
+    const arr = (c.anniversaries || []).slice();
+    if (a) { const it = arr.find(x => x.id === a.id); if (it) Object.assign(it, { title, date, repeat: fval('f-anrepeat'), icon: iconName }); }
+    else arr.push({ id: uid(), title, date, repeat: fval('f-anrepeat'), icon: iconName });
+    c.anniversaries = arr;
+    await save('cats', c);
+    closeSheet(); render(); toast(a ? '已更新' : '已添加纪念日');
+  }, a ? async () => {
+    c.anniversaries = (c.anniversaries || []).filter(x => x.id !== a.id);
+    await save('cats', c);
+    closeSheet(); render(); toast('已删除');
+  } : null);
+}
+ACT['pick-anicon'] = el => { $$('#f-anicon .chip').forEach(b => b.classList.toggle('on', b === el)); };
+ACT['add-anniv'] = () => { closeSheet(); openAnnivForm(null); };
+ACT['edit-anniv'] = el => { closeSheet(); openAnnivForm(el.dataset.id); };
+ACT['manage-anniv'] = () => {
+  const items = annivItems();
+  const rows = items.map(x => `<div class="row">
+      <span class="avatar" style="background:var(--brand-soft);color:var(--brand)">${icon(x.icon, 'width:20px;height:20px')}</span>
+      <div class="grow"><div class="t">${esc(x.title)}</div><div class="d">${esc(fmtYMD(x.date))} · ${x.repeat === 'year' ? '每年' : '仅一次'}</div></div>
+      ${x.custom
+      ? `<button class="iconbtn" data-act="edit-anniv" data-id="${x.id}" aria-label="编辑">${icon('edit')}</button>
+           <button class="iconbtn" data-act="del-anniv" data-id="${x.id}" aria-label="删除">${icon('trash')}</button>`
+      : `<span class="tag">来自档案</span>`}
+    </div>`).join('');
+  openSheet(`${sheetHead('纪念日')}
+    <div class="sheet-body">
+      <div class="small muted" style="margin-bottom:10px">生日与到家日会自动从档案读取，也可以在这里添加更多重要日期。</div>
+      ${items.length ? `<div class="list">${rows}</div>` : `<div class="card flat small dim">还没有纪念日。</div>`}
+      <div class="btnrow"><button class="btn primary" data-act="add-anniv">添加纪念日</button></div>
+    </div>`);
+};
+ACT['del-anniv'] = el => {
+  const c = curCat(); if (!c) return;
+  const a = (c.anniversaries || []).find(x => x.id === el.dataset.id);
+  if (!a) return;
+  confirmBox('删除纪念日', `确定删除「${a.title}」吗？`, '删除', async () => {
+    c.anniversaries = (c.anniversaries || []).filter(x => x.id !== a.id);
+    await save('cats', c);
+    render(); ACT['manage-anniv'](); toast('已删除');
+  });
+};
+
+routes.home = {
+  title: '首页',
+  top: () => topbar(`${catSwitcherHTML()}${settingsBtnHTML()}`),
+  view: () => {
+    const c = curCat();
+    if (!c) {
+      return `<div class="card" style="text-align:center;padding:30px 22px">
+        <span class="avatar lg" style="margin:0 auto 16px;background:var(--brand-soft);color:var(--brand)">${icon('paw', 'width:36px;height:36px')}</span>
+        <div style="font-weight:750;font-size:var(--fs-xl);letter-spacing:-.02em">欢迎使用猫事</div>
+        <p class="small muted" style="margin:10px 0 20px;line-height:1.8">先建一份宠物档案，之后的待办、健康、账目、目标都会跟着它走。</p>
+        <button class="btn primary block" data-act="add-cat">创建宠物档案</button>
+        <a class="btn ghost block" style="margin-top:10px" href="#/knowledge">先看看养猫小知识</a>
+      </div>
+      <div class="card flat small dim" style="line-height:1.8">数据只存在本机，无需注册，离线可用。想把它装到手机上：浏览器菜单 →「添加到主屏幕」。</div>`;
+    }
+    const due = dueToday();
+    const doneN = due.filter(t => isDoneOn(t, today())).length;
+    const streak = streakDays();
+    const rem = healthReminders().filter(h => diffDays(today(), h.nextDate) <= 60).slice(0, 3);
+    const series = weightSeries();
+    const lastW = series.length ? series[series.length - 1] : null;
+    const prevW = series.length > 1 ? series[series.length - 2] : null;
+    const wDelta = lastW && prevW ? lastW.v - prevW.v : null;
+    const m = today().slice(0, 7);
+    const mList = S.expenses.filter(e => e.catId === currentCatId && String(e.date || '').slice(0, 7) === m);
+    const mTotal = mList.reduce((a, e) => a + num(e.amount), 0);
+    const openTodos = due.filter(t => !isDoneOn(t, today()));
+
+    return `
+      <div class="hero">
+        <div class="ht">${esc(weekday(today()))} · ${esc(fmtMD(today()))}</div>
+        <div class="hv num">${due.length ? `${doneN}/${due.length} 项待办` : '今天没有待办'}</div>
+        <div class="hd">${doneN > 0 && doneN === due.length ? '今天全部完成，做得好' : streak > 0 ? `连续全清 ${streak} 天` : '按自己的节奏来就好'}</div>
+        <div class="hrow">
+          <div>健康提醒<b class="num">${rem.length ? rem.length + ' 项' : '无'}</b></div>
+          <div>本月开销<b class="num">¥${yuan(mTotal)}</b></div>
+          <div>最近体重<b class="num">${lastW ? num(lastW.v) + 'kg' : '—'}</b></div>
+        </div>
+      </div>
+
+      ${annivSectionHTML()}
+
+      ${rem.length ? `<div class="sec"><h2>快到期了</h2></div>
+        <div class="list">${rem.map(h => {
+      const s = reminderState(h), meta = HTYPES[h.type] || { n: '记录', i: 'dot' };
+      return `<div class="row" data-act="edit-health" data-id="${h.id}" role="button">
+            <span class="avatar" style="background:var(--${s.lv === 'danger' ? 'danger-soft' : s.lv === 'warn' ? 'warn-soft' : 'ok-soft'});color:var(--${s.lv})">${icon(meta.i, 'width:21px;height:21px')}</span>
+            <div class="grow"><div class="t">${esc(h.title || meta.n)}</div><div class="d">下次 ${esc(fmtMD(h.nextDate))}</div></div>
+            <span class="tag ${s.tag}">${esc(s.txt)}</span></div>`;
+    }).join('')}</div>` : ''}
+
+      <div class="sec"><h2>今日待办</h2><a class="more" href="#/todo">全部 ›</a></div>
+      ${due.length ? `<div class="list">${due.slice(0, 6).map(todoRowHTML).join('')}</div>`
+        : `<div class="card flat" style="display:flex;align-items:center;gap:10px">
+            <span class="small muted">今天没有安排，添加一条固定的日常吧。</span>
+            <button class="btn ghost sm" style="margin-left:auto;flex:none" data-act="add-todo">添加</button></div>`}
+      ${openTodos.length > 3 ? `<div class="small muted" style="margin-top:8px">还有 ${openTodos.length - 3} 项没完成</div>` : ''}
+
+      <div class="sec"><h2>体重趋势</h2><a class="more" href="#/health">健康 ›</a></div>
+      ${lastW ? `<div class="card">
+          <div style="display:flex;align-items:baseline;gap:10px">
+            <div class="num" style="font-size:26px;font-weight:750">${num(lastW.v)}<small style="font-size:13px;font-weight:600;color:var(--ink-3);margin-left:3px">kg</small></div>
+            ${wDelta != null ? `<span class="tag ${Math.abs(wDelta) < 0.001 ? '' : wDelta > 0 ? 'warn' : 'ok'}">${wDelta > 0 ? '+' : ''}${(Math.round(wDelta * 100) / 100).toFixed(2)} kg</span>` : ''}
+            <span class="small muted" style="margin-left:auto">${esc(fmtMD(lastW.d))}</span>
+          </div>
+          ${series.length > 1 ? sparkSVG(series.map(x => x.v)) : `<div class="small muted" style="margin-top:8px">再记一次就能看到趋势线。</div>`}
+        </div>`
+        : `<div class="card flat" style="display:flex;align-items:center;gap:10px">
+            <span class="small muted">还没有体重记录，建议每周固定时间称一次。</span>
+            <button class="btn ghost sm" style="margin-left:auto;flex:none" data-act="add-health" data-type="weight">记录</button></div>`}
+
+      <div class="sec"><h2>本月开销</h2><a class="more" href="#/expense">记账 ›</a></div>
+      <div class="card">
+        <div style="display:flex;align-items:baseline;gap:10px">
+          <div class="num" style="font-size:26px;font-weight:750">¥ ${yuan(mTotal)}</div>
+          <span class="small muted" style="margin-left:auto">${mList.length} 笔</span>
+        </div>
+        ${mList.length ? `<div class="bars" style="margin-top:12px">${ECATS.map(cat => ({ cat, v: mList.filter(e => e.category === cat).reduce((a, e) => a + num(e.amount), 0) }))
+        .filter(x => x.v > 0).sort((a, b) => b.v - a.v).slice(0, 3).map(x => `
+            <div class="bline"><span class="n">${esc(x.cat)}</span>
+              <span class="track"><i style="width:${x.v / mTotal * 100}%;background:${ecof(x.cat)}"></i></span>
+              <span class="amt num">¥${yuan(x.v)}</span></div>`).join('')}</div>`
+        : `<div class="small muted" style="margin-top:8px">这个月还没有记账。</div>`}
+      </div>
+
+      <div class="sec"><h2>快捷入口</h2></div>
+      <div class="grid2">
+        ${entryHTML('#/cat', 'paw', '宠物档案', c.name)}
+        ${entryHTML('#/goal', 'target', '周期目标', '计划与进度')}
+        ${entryHTML('#/knowledge', 'book', '常用小知识', '养猫经验')}
+        ${entryHTML('#/photo', 'image', '照片相册', '成长记录')}
+      </div>
+      <div style="height:8px"></div>`;
+  },
+  fab: () => `<button class="fab" data-act="add-todo" aria-label="新增待办">${icon('plus')}</button>`,
+  after: () => { startHomeBg(); startAnnivCarousel(); }
+};
+
+/* ---------- 备份 / 恢复 ---------- */
+function download(name, blob) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+const blobToDataURL = b => new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => res(''); r.readAsDataURL(b); });
+function dataURLToBlob(u) {
+  const i = String(u).indexOf(',');
+  const mime = (String(u).slice(0, i).match(/:(.*?);/) || [])[1] || 'image/jpeg';
+  const bin = atob(String(u).slice(i + 1));
+  const arr = new Uint8Array(bin.length);
+  for (let k = 0; k < bin.length; k++) arr[k] = bin.charCodeAt(k);
+  return new Blob([arr], { type: mime });
+}
+async function exportBackup() {
+  toast('正在打包，照片较多时会慢一点…');
+  const out = { app: '猫事', version: 1, exportedAt: new Date().toISOString(), stores: {}, blobs: {}, settings: {} };
+  for (const st of STORES) out.stores[st] = await idbGetAll(st);
+  out.settings = (await _req(db.transaction('kv', 'readonly').objectStore('kv').get('settings'))) || {};
+  const keys = await _req(db.transaction('blobs', 'readonly').objectStore('blobs').getAllKeys());
+  for (const k of keys) { const b = await idbGet('blobs', k); if (b) out.blobs[k] = await blobToDataURL(b); }
+  download(`猫事备份-${today()}.json`, new Blob([JSON.stringify(out)], { type: 'application/json' }));
+  S.settings.lastBackupAt = Date.now();
+  await saveSettings();
+  toast('备份文件已导出');
+}
+async function importBackup(file) {
+  let obj;
+  try { obj = JSON.parse(await file.text()); } catch (e) { return toast('文件不是有效的备份'); }
+  if (!obj || !obj.stores) return toast('备份格式不正确');
+  const n = STORES.reduce((a, st) => a + ((obj.stores[st] || []).length), 0);
+  confirmBox('导入会覆盖当前全部数据', `备份共 ${n} 条记录，导入后当前数据将被替换，页面会重新加载。`, '确认导入', async () => {
+    for (const st of STORES) {
+      await _req(db.transaction(st, 'readwrite').objectStore(st).clear());
+      for (const r of (obj.stores[st] || [])) await idbPut(st, r);
+    }
+    await _req(db.transaction('blobs', 'readwrite').objectStore('blobs').clear());
+    for (const k of Object.keys(obj.blobs || {})) await idbPut('blobs', dataURLToBlob(obj.blobs[k]), k);
+    await _req(db.transaction('kv', 'readwrite').objectStore('kv').clear());
+    if (obj.settings) await _req(db.transaction('kv', 'readwrite').objectStore('kv').put(obj.settings, 'settings'));
+    location.reload();
+  });
+}
+routes.settings = {
+  title: '数据备份',
+  top: () => topWithBack('数据备份'),
+  view: () => {
+    const counts = [
+      ['宠物档案', S.cats.length], ['待办事项', S.todos.length], ['健康记录', S.health.length],
+      ['账目明细', S.expenses.length], ['周期目标', S.goals.length],
+      ['知识内容', S.knowledge.length], ['照片', S.photos.length]
+    ];
+    const totalPhotos = S.photos.reduce((a, p) => a + num(p.size), 0) / 1048576;
+    return `
+      <div class="sec" style="margin-top:4px"><h2>备份与恢复</h2></div>
+      <div class="card">
+        <div class="small dim" style="line-height:1.8">备份会包含全部记录和照片（导出为 .json 文件）。换手机、重装浏览器前先导出一份，导入时选择这个文件即可恢复。</div>
+        <div class="btnrow">
+          <button class="btn primary" data-act="export-backup">${icon('download', 'width:17px;height:17px;margin-right:6px')}导出备份</button>
+          <button class="btn ghost" data-act="import-backup">${icon('upload', 'width:17px;height:17px;margin-right:6px')}导入备份</button>
+        </div>
+        <input type="file" id="backupFile" accept="application/json,.json" hidden>
+      </div>
+
+      <div class="sec"><h2>数据概况</h2></div>
+      <div class="list">${counts.map(c => `<div class="row"><div class="grow"><div class="t" style="font-weight:600;font-size:var(--fs-sm)">${c[0]}</div></div>
+        <span class="num dim" style="font-weight:700">${c[1]}</span></div>`).join('')}
+        <div class="row"><div class="grow"><div class="t" style="font-weight:600;font-size:var(--fs-sm)">照片占用</div></div>
+          <span class="num dim" style="font-weight:700">${totalPhotos ? totalPhotos.toFixed(1) + ' MB' : '0 MB'}</span></div>
+      </div>
+
+      <div class="sec"><h2>危险操作</h2></div>
+      <div class="card">
+        <div class="small dim" style="line-height:1.8;margin-bottom:12px">清空后所有宠物档案与记录都会消失，无法撤销。</div>
+        <button class="btn danger block" data-act="clear-all">清空全部数据</button>
+      </div>
+
+      <div class="sec"><h2>关于</h2></div>
+      <div class="card flat small dim" style="line-height:1.85">
+        <p style="margin:0 0 8px"><strong style="color:var(--ink)">猫事 · 养猫记录</strong> —— 单文件离线应用，无需注册、数据只在本机。</p>
+        <p style="margin:0 0 8px">装在手机上：用手机浏览器打开本页 → 菜单 →「添加到主屏幕」。</p>
+        <p style="margin:0">当前版本数据模型已按「可同步」设计（唯一 id、更新时间、版本号），后续可平滑接入云同步与多设备共享。</p>
+      </div>
+      <div style="height:8px"></div>`;
+  },
+  after: () => {
+    const el = $('#backupFile');
+    if (el) el.addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f) importBackup(f); });
+  }
+};
+ACT['export-backup'] = exportBackup;
+ACT['import-backup'] = () => { const el = $('#backupFile'); if (el) el.click(); };
+ACT['clear-all'] = () => confirmBox('清空全部数据？', '所有宠物档案、待办、健康记录、账目、目标、照片都会被删除，且无法恢复。', '全部清空', async () => {
+  for (const st of STORES) await _req(db.transaction(st, 'readwrite').objectStore(st).clear());
+  await _req(db.transaction('blobs', 'readwrite').objectStore('blobs').clear());
+  await _req(db.transaction('kv', 'readwrite').objectStore('kv').clear());
+  location.reload();
+});
+
+/* ---------- 兜底顶栏 ---------- */
+function defaultTop(title) { return topSimple(title); }
+
+/* ---------- 备份提醒：距上次导出超过 30 天且有数据时，轻提示一次 ---------- */
+function maybeBackupReminder() {
+  const hasData = S.photos.length > 0 || (S.todos.length + S.health.length + S.expenses.length) > 0;
+  if (!hasData) return;
+  const last = num(S.settings.lastBackupAt);
+  const days = last ? diffDays(d2s(new Date(last)), today()) : 9999;
+  if (days >= 30) setTimeout(() => toast(last ? '距上次备份已超过 30 天，建议导出备份' : '建议到「更多 → 数据备份」导出一份备份'), 1800);
+}
+
+/* ---------- Service Worker：仅 http(s) 下注册，file:// 或旧浏览器静默跳过 ---------- */
+function registerSW() {
+  if (!('serviceWorker' in navigator)) return;
+  if (!/^https?:$/.test(location.protocol)) return;
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+}
+
+/* ===================== 启动 ===================== */
+window.__actions = ACT;
+async function init() {
+  try {
+    try {
+      db = await openDB();
+    } catch (e) {
+      /* IndexedDB 不可用（无痕模式 / 被浏览器禁用）：降级为内存模式，保证不白屏 */
+      console.warn('[猫事] IndexedDB 不可用，已切换内存模式', e);
+      db = makeMemoryDB();
+      MEMORY_MODE = true;
+    }
+    await loadAll();
+    await preloadPhotoURLs();
+    await seedKnowledge();
+    applyTheme();
+    if (!location.hash) history.replaceState(null, '', '#/home');
+    render();
+    if (MEMORY_MODE) setTimeout(() => toast('无法访问本地存储，本次数据不会被保存'), 500);
+    else maybeBackupReminder();
+    registerSW();
+  } catch (e) {
+    app.innerHTML = `<div style="padding:48px 24px;color:var(--ink-2);line-height:1.9">
+      <div style="font-weight:750;font-size:var(--fs-lg);margin-bottom:8px">应用启动失败</div>
+      <div class="small muted">${esc(e && e.message ? e.message : String(e))}</div>
+      <div class="small muted" style="margin-top:12px">如果你在用无痕模式，浏览器可能禁用了本地存储。换普通窗口再试一次。</div>
+    </div>`;
+  }
+}
+init();
+
+</script>
+</body>
+</html>

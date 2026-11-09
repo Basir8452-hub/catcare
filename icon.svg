@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="猫事 · 养猫管理">
+  <title>猫事 · 养猫管理</title>
+  <!-- 陶土色圆角方块底 -->
+  <rect x="0" y="0" width="512" height="512" rx="112" ry="112" fill="#C4622D"/>
+  <!-- 奶白色猫爪：掌垫 + 四个脚趾 -->
+  <g fill="#FBEADF">
+    <!-- 掌垫（大椭圆） -->
+    <ellipse cx="256" cy="330" rx="130" ry="112"/>
+    <!-- 四个脚趾（小圆） -->
+    <circle cx="128" cy="216" r="62"/>
+    <circle cx="214" cy="140" r="66"/>
+    <circle cx="298" cy="140" r="66"/>
+    <circle cx="384" cy="216" r="62"/>
+  </g>
+</svg>

@@ -1,0 +1,10 @@
+# 预览 / 构建产物（非源码，不纳入版本管理）
+.trae-html-share-packages/
+.screenshots/
+_preview_check.html
+前端温馨化改造预览.html
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini

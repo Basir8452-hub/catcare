@@ -1,0 +1,154 @@
+/* ==========================================================================
+   猫事 · CatCare 设计令牌（Design Tokens）
+   本文件由 index.html 中的 CSS 变量抽取而来，作为设计系统的单一事实来源沉淀。
+   浅色为默认主题；深色通过 html[data-mode="dark"] 覆盖。
+   额外主题色提供 green / blue / rose / amber 四套（浅/深）。
+   ⚠️ 仅作令牌沉淀用途，index.html 内联样式为运行时权威来源。
+   ========================================================================== */
+
+:root {
+  /* 基础色 —— 浅色（默认） */
+  --bg: #F7F3EC;
+  --surface: #FFFFFF;
+  --surface-2: #F2ECE3;
+  --surface-3: #EAE2D6;
+
+  /* 文字 */
+  --ink: #2A2520;
+  --ink-2: #6C6257;
+  --ink-3: #9C9186;
+
+  /* 描边 */
+  --line: #E7DED1;
+  --line-2: #D9CEBE;
+
+  /* 品牌色（陶土 clay） */
+  --brand: #C4622D;
+  --brand-dark: #A34E20;
+  --brand-soft: #FBEADF;
+  --brand-ink: #FFFFFF;
+
+  /* 语义色 */
+  --ok: #4E7A66;
+  --ok-soft: #E3EDE7;
+  --warn: #B0801F;
+  --warn-soft: #F8EED6;
+  --danger: #B23A2F;
+  --danger-soft: #FAE7E4;
+
+  /* 圆角 */
+  --r-lg: 18px;
+  --r-md: 14px;
+  --r-sm: 10px;
+
+  /* 阴影 */
+  --shadow-1: 0 1px 2px rgba(58,44,30,.06), 0 2px 8px rgba(58,44,30,.05);
+  --shadow-2: 0 8px 28px rgba(58,44,30,.14);
+
+  /* 字号 */
+  --fs-xl: 26px;
+  --fs-lg: 19px;
+  --fs-md: 16px;
+  --fs-sm: 14px;
+  --fs-xs: 12.5px;
+
+  /* 布局 */
+  --tabh: 64px;
+}
+
+html[data-mode="dark"] {
+  --bg: #171412;
+  --surface: #221E1B;
+  --surface-2: #2A2521;
+  --surface-3: #332C27;
+
+  --ink: #F2ECE4;
+  --ink-2: #B6AAA0;
+  --ink-3: #877C72;
+
+  --line: #332C27;
+  --line-2: #403832;
+
+  --brand: #E08454;
+  --brand-dark: #F09868;
+  --brand-soft: #3A2A20;
+  --brand-ink: #221E1B;
+
+  --ok: #7FB79C;
+  --ok-soft: #22302A;
+  --warn: #D8AE57;
+  --warn-soft: #332B1B;
+  --danger: #E3796C;
+  --danger-soft: #3A2421;
+
+  --shadow-1: 0 1px 2px rgba(0,0,0,.4), 0 2px 10px rgba(0,0,0,.3);
+  --shadow-2: 0 10px 32px rgba(0,0,0,.5);
+}
+
+/* --------------------------------------------------------------------------
+   额外主题色（Accent）—— 可在 :root 或 html[data-theme="xxx"] 上叠加
+   浅 / 深各一套
+   -------------------------------------------------------------------------- */
+
+/* green */
+[data-theme="green"] {
+  --brand: #3E7A5E;
+  --brand-dark: #2F624A;
+  --brand-soft: #E3EDE7;
+  --brand-ink: #FFFFFF;
+}
+html[data-mode="dark"][data-theme="green"] {
+  --brand: #6FBF97;
+  --brand-dark: #7FCBA6;
+  --brand-soft: #22302A;
+  --brand-ink: #171412;
+}
+
+/* blue */
+[data-theme="blue"] {
+  --brand: #3F6EA8;
+  --brand-dark: #335A8A;
+  --brand-soft: #E3ECF7;
+  --brand-ink: #FFFFFF;
+}
+html[data-mode="dark"][data-theme="blue"] {
+  --brand: #7FA9DE;
+  --brand-dark: #8FB6E6;
+  --brand-soft: #1E2A3A;
+  --brand-ink: #171412;
+}
+
+/* rose */
+[data-theme="rose"] {
+  --brand: #A24E86;
+  --brand-dark: #87406F;
+  --brand-soft: #F6E6F0;
+  --brand-ink: #FFFFFF;
+}
+html[data-mode="dark"][data-theme="rose"] {
+  --brand: #D48FBC;
+  --brand-dark: #DE9DC7;
+  --brand-soft: #341F2D;
+  --brand-ink: #171412;
+}
+
+/* amber */
+[data-theme="amber"] {
+  --brand: #A9761C;
+  --brand-dark: #8C6115;
+  --brand-soft: #F8EED6;
+  --brand-ink: #FFFFFF;
+}
+html[data-mode="dark"][data-theme="amber"] {
+  --brand: #D9B25E;
+  --brand-dark: #E0BD70;
+  --brand-soft: #332B1B;
+  --brand-ink: #171412;
+}
+
+/* --------------------------------------------------------------------------
+   字号档位工具类：sm / md / lg
+   -------------------------------------------------------------------------- */
+.t-sm { font-size: var(--fs-sm); }
+.t-md { font-size: var(--fs-md); }
+.t-lg { font-size: var(--fs-lg); }
