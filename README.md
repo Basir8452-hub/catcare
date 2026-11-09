@@ -36,6 +36,7 @@
 | `manifest.json` | PWA 清单 |
 | `sw.js` | Service Worker，离线缓存 |
 | `icon.svg` / `icon-192.png` / `icon-512.png` | 应用图标 |
+| `icon-maskable-512.png` | maskable 图标（Android 自适应裁切用） |
 | `tokens.css` / `tokens.json` | 设计令牌 |
 
 ## 部署
