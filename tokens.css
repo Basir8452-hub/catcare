@@ -8,42 +8,43 @@
 
 :root {
   /* 基础色 —— 浅色（默认） */
-  --bg: #F7F3EC;
-  --surface: #FFFFFF;
-  --surface-2: #F2ECE3;
-  --surface-3: #EAE2D6;
+  --bg: #FBF3E8;
+  --bg-grad: radial-gradient(120% 80% at 120% 0%, #FFFCF5 0%, #FAF2E4 55%, #F4E8D5 100%);
+  --surface: #FFFCF7;
+  --surface-2: #F6ECE0;
+  --surface-3: #EFE1CE;
 
   /* 文字 */
-  --ink: #2A2520;
-  --ink-2: #6C6257;
-  --ink-3: #9C9186;
+  --ink: #3B2E23;
+  --ink-2: #7C6B58;
+  --ink-3: #A99A85;
 
   /* 描边 */
-  --line: #E7DED1;
-  --line-2: #D9CEBE;
+  --line: #EFE1CD;
+  --line-2: #E2D0B6;
 
-  /* 品牌色（陶土 clay） */
-  --brand: #C4622D;
-  --brand-dark: #A34E20;
-  --brand-soft: #FBEADF;
+  /* 品牌色（奶油奶咖 · 柔和暖棕） */
+  --brand: #C1763E;
+  --brand-dark: #A15E31;
+  --brand-soft: #F9E8D6;
   --brand-ink: #FFFFFF;
 
   /* 语义色 */
-  --ok: #4E7A66;
-  --ok-soft: #E3EDE7;
-  --warn: #B0801F;
-  --warn-soft: #F8EED6;
-  --danger: #B23A2F;
-  --danger-soft: #FAE7E4;
+  --ok: #5F8A63;
+  --ok-soft: #E9F0E1;
+  --warn: #BF8A2E;
+  --warn-soft: #F8EDD5;
+  --danger: #BC5B45;
+  --danger-soft: #F9E7E0;
 
   /* 圆角 */
-  --r-lg: 18px;
-  --r-md: 14px;
-  --r-sm: 10px;
+  --r-lg: 24px;
+  --r-md: 18px;
+  --r-sm: 12px;
 
-  /* 阴影 */
-  --shadow-1: 0 1px 2px rgba(58,44,30,.06), 0 2px 8px rgba(58,44,30,.05);
-  --shadow-2: 0 8px 28px rgba(58,44,30,.14);
+  /* 阴影（暖调，基于棕褐 rgba(133,94,51)） */
+  --shadow-1: 0 1px 2px rgba(107,73,39,.05), 0 3px 10px rgba(133,94,51,.06);
+  --shadow-2: 0 12px 34px rgba(133,94,51,.15);
 
   /* 字号 */
   --fs-xl: 26px;
@@ -58,6 +59,7 @@
 
 html[data-mode="dark"] {
   --bg: #171412;
+  --bg-grad: radial-gradient(120% 80% at 120% 0%, #1E1A17 0%, #191512 55%, #141110 100%);
   --surface: #221E1B;
   --surface-2: #2A2521;
   --surface-3: #332C27;
