@@ -1,10 +1,8 @@
-[
-  {
-    "relation": ["delegate_permission/common.handle_all_urls"],
-    "target": {
-      "namespace": "android_app",
-      "package_name": "PENDING_FROM_PWABUILDER",
-      "sha256_cert_fingerprints": ["PENDING_FROM_PWABUILDER"]
-    }
-  }
-]
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.basir8452_hub.twa",
+        "sha256_cert_fingerprints": ["FE:0D:43:F7:7B:B7:CC:8D:F7:5A:52:47:C3:02:5E:A5:AD:D9:17:28:55:D5:9D:4A:59:93:C0:32:45:7D:A6:6A"]
+      }
+    }]
