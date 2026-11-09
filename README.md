@@ -40,7 +40,7 @@
 
 ## 部署
 
-推送到 `main` 分支后，由 GitHub Actions 自动发布到 GitHub Pages。
+推送到 `main` 分支后自动发布到 GitHub Pages（分支部署，无需构建）。
 
 ## 路线图
 
