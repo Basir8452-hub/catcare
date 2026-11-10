@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- 冷启动闪屏底色，与 App 自身背景色一致，避免出现第三方品牌图 -->
+    <color name="catcare_launch_background">#FBF3E8</color>
+    <!-- 自适应图标背景色（来自 design/猫事-Android自适应图标） -->
     <color name="ic_launcher_background">#C4622D</color>
 </resources>
