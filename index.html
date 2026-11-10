@@ -215,6 +215,11 @@ svg{width:20px;height:20px;flex:none;display:block}
 .btn.sm{padding:8px 14px;font-size:var(--fs-xs)}
 .btn:disabled{opacity:.45;pointer-events:none}
 .btnrow{display:flex;gap:10px;margin-top:12px}
+/* 可折叠的高级设置（默认收起，避免误改内置默认值） */
+details.adv > summary{list-style:none;cursor:pointer;user-select:none;display:flex;align-items:center;gap:6px;font-size:var(--fs-sm);font-weight:600;color:var(--brand)}
+details.adv > summary::-webkit-details-marker{display:none}
+details.adv > summary::after{content:"▾";margin-left:auto;color:var(--ink-3);transition:transform .15s}
+details.adv[open] > summary::after{transform:rotate(180deg)}
 .btnrow .btn{flex:1}
 
 /* ============ 表单 ============ */
@@ -708,7 +713,7 @@ function ageText(birthday) {
 
 /* ---------- IndexedDB ---------- */
 const DB_NAME = 'catcare';
-const DB_VER = 1;
+const DB_VER = 2;
 const STORES = ['cats', 'todos', 'health', 'expenses', 'goals', 'knowledge', 'photos'];
 let db = null;
 
@@ -720,6 +725,8 @@ function openDB() {
       STORES.forEach(s => { if (!d.objectStoreNames.contains(s)) d.createObjectStore(s, { keyPath: 'id' }); });
       if (!d.objectStoreNames.contains('blobs')) d.createObjectStore('blobs');
       if (!d.objectStoreNames.contains('kv')) d.createObjectStore('kv');
+      /* 待上行队列：按记录去重（key = store:recId），未同步成功的改动留在这里 */
+      if (!d.objectStoreNames.contains('outbox')) d.createObjectStore('outbox', { keyPath: 'key' });
     };
     req.onsuccess = () => res(req.result);
     req.onerror = () => rej(req.error);
@@ -771,8 +778,8 @@ function handleDbError(e) {
 let MEMORY_MODE = false;
 function makeMemoryDB() {
   const data = {};
-  [...STORES, 'blobs', 'kv'].forEach(s => { data[s] = new Map(); });
-  const keyOf = (st, v, k) => (st === 'kv' || st === 'blobs') ? k : v.id;
+  [...STORES, 'blobs', 'kv', 'outbox'].forEach(s => { data[s] = new Map(); });
+  const keyOf = (st, v, k) => (st === 'kv' || st === 'blobs') ? k : (st === 'outbox' ? v.key : v.id);
   function mkReq(fn) {
     const r = {};
     setTimeout(() => {
@@ -880,6 +887,7 @@ async function save(st, rec) {
   await idbPut(st, JSON.parse(JSON.stringify(rec)));
   const arr = S[st], i = arr.findIndex(x => x.id === rec.id);
   if (i < 0) arr.push(rec); else arr[i] = rec;
+  queueOp(st, rec).catch(() => {});   // 入待同步队列（内存模式下自动跳过）
   return rec;
 }
 function newRec(o) { return Object.assign({ id: uid(), createdAt: Date.now(), updatedAt: Date.now(), rev: 0, deleted: false }, o); }
@@ -997,7 +1005,7 @@ function startHomeBg() {
   layer.id = 'bgLayer';
   layer.setAttribute('aria-hidden', 'true');
   layer.innerHTML = list.map((p, i) =>
-    `<img class="${i === 0 ? 'on' : ''}" src="${S.photoURLs[p.id] || ''}" alt="">`).join('') + '<div class="scrim"></div>';
+    `<img class="${i === 0 ? 'on' : ''}" src="${S.photoURLs[p.id] || S.thumbURLs[p.id] || ''}" alt="">`).join('') + '<div class="scrim"></div>';
   document.body.insertBefore(layer, document.body.firstChild);
   const imgs = layer.querySelectorAll('img');
   if (imgs.length < 2) return;
@@ -2015,15 +2023,14 @@ async function ensurePhotoURL(key) {
   if (!key) return null;
   if (!S.photoURLs[key]) {
     const b = await idbGet('blobs', key);
-    if (!b) return null;
-    S.photoURLs[key] = URL.createObjectURL(b);
+    if (b) S.photoURLs[key] = URL.createObjectURL(b);
   }
-  /* 缩略图：旧数据没有的话回退用原图 */
+  /* 缩略图：旧数据没有的话回退用原图；同步过来的照片可能只有缩略图没有原图 */
   if (!S.thumbURLs[key]) {
     const tb = await idbGet('blobs', key + ':thumb');
-    S.thumbURLs[key] = tb ? URL.createObjectURL(tb) : S.photoURLs[key];
+    S.thumbURLs[key] = tb ? URL.createObjectURL(tb) : (S.photoURLs[key] || '');
   }
-  return S.photoURLs[key];
+  return S.photoURLs[key] || S.thumbURLs[key] || null;
 }
 async function preloadPhotoURLs() {
   for (const p of S.photos) await ensurePhotoURL(p.id);
@@ -2117,10 +2124,12 @@ ACT['photo-view'] = el => {
   if (!p) return;
   const c = curCat();
   const isAvatar = c && c.avatarKey === p.id;
-  const url = S.photoURLs[p.id] || '';
+  const url = S.photoURLs[p.id] || S.thumbURLs[p.id] || '';
+  const noOriginal = !S.photoURLs[p.id] && !!S.thumbURLs[p.id];
   openSheet(`${sheetHead(p.caption || fmtMD(p.date))}
     <div class="sheet-body">
       <img src="${url}" alt="${esc(p.caption || '照片')}" width="${p.width || 1000}" height="${p.height || 1000}" decoding="async" style="width:100%;height:auto;border-radius:var(--r-lg);display:block;margin-bottom:14px">
+      ${noOriginal ? '<div class="card flat small dim">原图未同步：本机仅保存了缩略图（同步通道单次上限 100KB，放不下原图）。</div>' : ''}
       <div class="card flat small dim">拍摄 / 添加日期：${esc(fmtMD(p.date))}　文件大小：${p.size ? Math.round(p.size / 1024) + ' KB' : '—'}</div>
       <div class="btnrow"><button class="btn ghost" data-act="edit-photo" data-id="${p.id}">改说明</button>
         <button class="btn ${isAvatar ? 'ghost' : 'primary'}" data-act="pick-avatar-from-photo" data-id="${p.id}">${isAvatar ? '取消头像' : '设为头像'}</button></div>
@@ -2437,6 +2446,7 @@ routes.more = {
         ${entryHTML('#/goal', 'target', '周期目标', gl ? `${gl} 个进行中` : '减重 / 训练计划')}
         ${entryHTML('#/knowledge', 'book', '常用小知识', `${kl} 条内容`)}
         ${entryHTML('#/photo', 'image', '照片相册', ph ? `${ph} 张` : '记录成长')}
+        ${entryHTML('#/sync', 'shield', '多设备同步', syncCfg().enabled ? '已开启' : '未开启')}
         ${entryHTML('#/settings', 'database', '数据备份', '导出 / 导入')}
       </div>
 
@@ -2725,7 +2735,11 @@ async function importBackup(file) {
     await _req(db.transaction('blobs', 'readwrite').objectStore('blobs').clear());
     for (const k of Object.keys(obj.blobs || {})) await idbPut('blobs', dataURLToBlob(obj.blobs[k]), k);
     await _req(db.transaction('kv', 'readwrite').objectStore('kv').clear());
-    if (obj.settings) await _req(db.transaction('kv', 'readwrite').objectStore('kv').put(obj.settings, 'settings'));
+    if (obj.settings) { obj.settings.syncCursor = 0; await _req(db.transaction('kv', 'readwrite').objectStore('kv').put(obj.settings, 'settings')); }
+    await _req(db.transaction('outbox', 'readwrite').objectStore('outbox').clear());
+    for (const st of STORES) for (const r of (obj.stores[st] || [])) await _req(db.transaction('outbox', 'readwrite').objectStore('outbox').put({
+      key: st + ':' + r.id, store: st, recId: r.id, updatedAt: num(r.updatedAt), rev: num(r.rev), deleted: !!r.deleted, payload: r, ts: Date.now()
+    }));
     location.reload();
   });
 }
@@ -2765,9 +2779,9 @@ routes.settings = {
 
       <div class="sec"><h2>关于</h2></div>
       <div class="card flat small dim" style="line-height:1.85">
-        <p style="margin:0 0 8px"><strong style="color:var(--ink)">猫事 · 养猫记录</strong> —— 单文件离线应用，无需注册、数据只在本机。</p>
+        <p style="margin:0 0 8px"><strong style="color:var(--ink)">猫事 · 养猫记录</strong> —— 单文件离线应用，数据默认只在本机；开启「多设备同步」后可两台设备共用一份数据。</p>
         <p style="margin:0 0 8px">装在手机上：用手机浏览器打开本页 → 菜单 →「添加到主屏幕」。</p>
-        <p style="margin:0">当前版本数据模型已按「可同步」设计（唯一 id、更新时间、版本号），后续可平滑接入云同步与多设备共享。</p>
+        <p style="margin:0">所有记录都带唯一 id、更新时间与版本号，多设备之间按时间自动合并，不会丢数据。</p>
       </div>
       <div style="height:8px"></div>`;
   },
@@ -2781,9 +2795,272 @@ ACT['import-backup'] = () => { const el = $('#backupFile'); if (el) el.click(); 
 ACT['clear-all'] = () => confirmBox('清空全部数据？', '所有宠物档案、待办、健康记录、账目、目标、照片都会被删除，且无法恢复。', '全部清空', async () => {
   for (const st of STORES) await _req(db.transaction(st, 'readwrite').objectStore(st).clear());
   await _req(db.transaction('blobs', 'readwrite').objectStore('blobs').clear());
+  await _req(db.transaction('outbox', 'readwrite').objectStore('outbox').clear());
   await _req(db.transaction('kv', 'readwrite').objectStore('kv').clear());
   location.reload();
 });
+
+/* ===================== 多设备同步（CloudBase） ===================== */
+/* 两人共享一份数据：两端使用同一个 sync key 与 sid，不做账号体系。
+   冲突按 LWW 合并（updatedAt 大者胜，相同则 rev 大者胜）。照片仅同步 400px 缩略图（见 SYNC_THUMB_MAX）。 */
+const SYNC_DEFAULT = {
+  endpoint: 'https://test1-d6gzwlj4u05667fb5-1480115017.ap-shanghai.app.tcloudbase.com/sync',
+  key: 'f9dd7ad1a2416b6d878b7a2b67493a762577b125f71c357e312f19f8b2b526d2',
+  sid: 'default',
+  enabled: true
+};
+const SYNC_PUSH_MAX = 50;                 // 单次上行记录数上限
+/* CloudBase HTTP 访问服务单请求体硬上限 100KB（实测 102400 字节通过、104857 字节返回 413）。
+   这里留出余量：整包预算 90KB，单张缩略图 base64 上限 60KB。原图（1600px，常 270–800KB）不放同步通道。 */
+const SYNC_BODY_BUDGET = 90 * 1024;       // 单次请求体预算（字符）
+const SYNC_THUMB_MAX = 60 * 1024;         // 单张缩略图 base64 上限，超出则只同步照片文字信息
+const SYNCSTATE = { running: false, lastAt: 0, lastErr: '' };
+
+function syncCfg() { return Object.assign({}, SYNC_DEFAULT, (S.settings && S.settings.sync) || {}); }
+async function saveSyncCfg(patch) { S.settings.sync = Object.assign({}, syncCfg(), patch); await saveSettings(); }
+async function ensureDeviceId() {
+  if (!S.settings.syncDeviceId) { S.settings.syncDeviceId = uid().slice(0, 8); await saveSettings(); }
+  return S.settings.syncDeviceId;
+}
+function syncTimeText() {
+  return SYNCSTATE.lastAt ? new Date(SYNCSTATE.lastAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) : '尚未同步';
+}
+
+/* ---- 待上行队列（key = store:recId，同一记录只保留最新一版） ---- */
+async function queueOp(st, rec) {
+  if (MEMORY_MODE || STORES.indexOf(st) < 0) return;
+  if (rec.builtin) return;   // 内置知识文章各设备自带，不上行，避免同步后重复
+  await idbPut('outbox', {
+    key: st + ':' + rec.id, store: st, recId: rec.id,
+    updatedAt: num(rec.updatedAt), rev: num(rec.rev), deleted: !!rec.deleted,
+    payload: JSON.parse(JSON.stringify(rec)), ts: Date.now()
+  });
+  scheduleSync();
+}
+const outboxAll = () => _req(db.transaction('outbox', 'readonly').objectStore('outbox').getAll());
+const outboxCount = () => _req(db.transaction('outbox', 'readonly').objectStore('outbox').count());
+
+/* ---- 网络 ---- */
+async function syncApi(body) {
+  const cfg = syncCfg();
+  const res = await fetch(cfg.endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-sync-key': cfg.key },
+    body: JSON.stringify(body)
+  });
+  let data = null;
+  try { data = await res.json(); } catch (e) {}
+  if (!res.ok || !data || !data.ok) throw new Error((data && data.error) || ('网络错误 HTTP ' + res.status));
+  return data;
+}
+
+/* ---- 上行：把队列里的记录推给云端 ---- */
+async function buildPushOps() {
+  const list = (await outboxAll()).sort((a, b) => (a.ts || 0) - (b.ts || 0));
+  const ops = [];
+  let budget = SYNC_BODY_BUDGET;
+  for (const o of list) {
+    if (ops.length >= SYNC_PUSH_MAX) break;
+    const op = { store: o.store, recId: o.recId, updatedAt: o.updatedAt, rev: o.rev, deleted: o.deleted, payload: o.payload ? JSON.parse(JSON.stringify(o.payload)) : null };
+    if (o.store === 'photos' && !o.deleted && op.payload) {
+      /* 仅同步 400px 缩略图：原图 base64 常达 270–800KB，超出网关 100KB 上限。
+         另一设备以缩略图作为可查看版本，详情页标注「原图未同步」。 */
+      const t = await idbGet('blobs', o.recId + ':thumb').catch(() => null);
+      if (t) { const d = await blobToDataURL(t); if (d && d.length <= SYNC_THUMB_MAX) op.payload._thumb = d; }
+    }
+    const size = op.payload ? JSON.stringify(op.payload).length : 200;
+    if (ops.length && size > budget) break;   // 控制单次请求体大小，剩余留待下一轮
+    budget -= size;
+    ops.push(op);
+  }
+  return ops;
+}
+async function doPush() {
+  const ops = await buildPushOps();
+  if (!ops.length) return 0;
+  const r = await syncApi({ action: 'push', sid: syncCfg().sid, ops });
+  for (const a of (r.accepted || [])) await idbDel('outbox', a.store + ':' + a.recId);
+  for (const rj of (r.rejected || [])) {   // 云端更新：以云端为准落地，并出队
+    if (rj.current) await applyRemote({ store: rj.store, recId: rj.recId, updatedAt: rj.current.updatedAt, rev: rj.current.rev, deleted: rj.current.deleted, payload: rj.current.payload });
+    await idbDel('outbox', rj.store + ':' + rj.recId);
+  }
+  return ops.length;
+}
+async function flushOutbox() {   // 反复推送直到队列排空（导入大量数据后会分批上行）
+  for (let n = 0; n < 200; n++) {
+    const pushed = await doPush();
+    if (!pushed) break;
+    if ((await outboxCount()) === 0) break;
+  }
+}
+
+/* ---- 下行：把云端变更合并进本地（直接写库，避免再次入队） ---- */
+async function applyRemote(ch) {
+  if (!ch || STORES.indexOf(ch.store) < 0 || !ch.recId) return false;
+  const local = await idbGet(ch.store, ch.recId).catch(() => null);
+  if (local) {   // 本地更新则保留本地，由上行去收敛
+    const lt = num(local.updatedAt), lr = num(local.rev), rt = num(ch.updatedAt), rr = num(ch.rev);
+    if (rt < lt || (rt === lt && rr <= lr)) return false;
+  }
+  if (ch.deleted) {
+    if (ch.store === 'photos') {
+      await idbDel('blobs', ch.recId).catch(() => {});
+      await idbDel('blobs', ch.recId + ':thumb').catch(() => {});
+      revokePhotoURLs(ch.recId);
+    }
+    await idbDel(ch.store, ch.recId);
+    return true;
+  }
+  const rec = ch.payload;
+  if (!rec || typeof rec !== 'object') return false;
+  if (!rec.id) rec.id = ch.recId;   // 云端异常数据缺 id 时用 recId 兜底，避免写库报错卡死同步
+  if (ch.store === 'photos' && (rec._thumb || rec._blob)) {
+    const meta = Object.assign({}, rec); delete meta._blob; delete meta._thumb;
+    if (rec._thumb) { const bl = dataURLToBlob(rec._thumb); await idbPut('blobs', bl, ch.recId + ':thumb'); S.thumbURLs[ch.recId] = URL.createObjectURL(bl); }
+    await idbPut(ch.store, meta);
+  } else {
+    await idbPut(ch.store, rec);
+  }
+  return true;
+}
+async function doPull() {
+  let cursor = num(S.settings.syncCursor), changed = 0;
+  for (let n = 0; n < 20; n++) {
+    const r = await syncApi({ action: 'pull', sid: syncCfg().sid, since: cursor });
+    for (const ch of (r.changes || [])) { if (await applyRemote(ch)) changed++; }
+    cursor = num(r.cursor, cursor);
+    if (!r.more) break;
+  }
+  S.settings.syncCursor = cursor;
+  await saveSettings();
+  return changed;
+}
+
+/* ---- 调度 ---- */
+let syncTimer = null;
+function scheduleSync(delay = 1500) {
+  if (MEMORY_MODE || !syncCfg().enabled) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => { syncNow().catch(() => {}); }, delay);
+}
+async function syncNow(opts) {
+  const manual = !!(opts && opts.manual);
+  if (MEMORY_MODE) { if (manual) toast('本地存储不可用，无法同步'); return null; }
+  if (!syncCfg().enabled && !(opts && opts.force)) return null;
+  if (SYNCSTATE.running) { if (manual) toast('正在同步中…'); return null; }
+  SYNCSTATE.running = true; updateSyncUI();
+  try {
+    await flushOutbox();
+    const changed = await doPull();
+    SYNCSTATE.lastAt = Date.now(); SYNCSTATE.lastErr = '';
+    if (changed) await reloadAfterSync();
+    if (manual) toast(changed ? `同步完成，更新 ${changed} 条` : '同步完成，已是最新');
+    return changed;
+  } catch (e) {
+    SYNCSTATE.lastErr = (e && e.message) || String(e);
+    if (manual) toast('同步失败：' + SYNCSTATE.lastErr);
+    return null;
+  } finally {
+    SYNCSTATE.running = false; updateSyncUI();
+  }
+}
+async function reloadAfterSync() {
+  Object.keys(S.photoURLs).forEach(id => revokePhotoURLs(id));
+  S.photoURLs = {}; S.thumbURLs = {};
+  await loadAll();
+  await preloadPhotoURLs();
+  render();
+}
+function updateSyncUI() {
+  if (curRoute.name !== 'sync') return;
+  const box = $('#sync-status'); if (!box) return;
+  box.textContent = SYNCSTATE.running ? '同步中…'
+    : (SYNCSTATE.lastErr ? ('上次同步失败：' + SYNCSTATE.lastErr)
+      : (SYNCSTATE.lastAt ? ('上次同步 ' + syncTimeText()) : '尚未同步'));
+}
+/* 首次开启同步时，把已有的本地记录整体排入队列，保证本机历史数据也会上传 */
+async function bootstrapOutbox() {
+  if (S.settings.syncBootstrapped) return;
+  for (const st of STORES) {
+    for (const r of (S[st] || [])) {
+      if (r.builtin) continue;
+      await idbPut('outbox', {
+        key: st + ':' + r.id, store: st, recId: r.id,
+        updatedAt: num(r.updatedAt), rev: num(r.rev), deleted: false,
+        payload: JSON.parse(JSON.stringify(r)), ts: Date.now()
+      });
+    }
+  }
+  S.settings.syncBootstrapped = true;
+  await saveSettings();
+}
+/* 启动后跑一次；回到前台、恢复网络、以及每隔 1 分钟各触发一次（改动本身也会防抖触发） */
+function initSync() {
+  if (MEMORY_MODE) return;
+  ensureDeviceId()
+    .then(() => bootstrapOutbox())
+    .then(() => syncNow())
+    .catch(() => {});
+  window.addEventListener('online', () => syncNow().catch(() => {}));
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) syncNow().catch(() => {}); });
+  setInterval(() => { if (!document.hidden) syncNow().catch(() => {}); }, 60000);
+}
+
+/* ---- 同步设置页 ---- */
+routes.sync = {
+  title: '多设备同步',
+  top: () => topWithBack('多设备同步'),
+  view: () => {
+    const cfg = syncCfg();
+    return `
+      <div class="sec" style="margin-top:4px"><h2>同步状态</h2></div>
+      <div class="card">
+        <div class="row"><div class="grow"><div class="t" style="font-weight:600;font-size:var(--fs-sm)">${cfg.enabled ? '同步已开启' : '同步已暂停'}</div>
+          <div class="d" id="sync-status">${SYNCSTATE.running ? '同步中…' : (SYNCSTATE.lastErr ? ('上次同步失败：' + SYNCSTATE.lastErr) : (SYNCSTATE.lastAt ? '上次同步 ' + syncTimeText() : '尚未同步'))}</div></div></div>
+        <div class="btnrow" style="margin-top:12px">
+          <button class="btn primary" data-act="sync-now">${icon('upload', 'width:17px;height:17px;margin-right:6px')}立即同步</button>
+          <button class="btn ghost" data-act="sync-toggle">${cfg.enabled ? '暂停同步' : '开启同步'}</button>
+        </div>
+      </div>
+
+      <div class="sec"><h2>同步服务</h2></div>
+      <div class="card">
+        <div class="small dim" style="line-height:1.8">两台设备已内置相同的同步服务，通常无需修改，直接同步即可。</div>
+        <details class="adv">
+          <summary style="margin-top:10px">高级设置（服务地址 / 共享密钥 / 数据分组）</summary>
+          <div style="margin-top:12px">
+            <p class="small muted" style="margin:0 0 10px;line-height:1.7">把两台设备填成相同的地址与密钥才会共用同一份数据。密钥相当于密码，请勿外传。</p>
+            ${field('服务地址', `<input class="input" id="f-sync-endpoint" value="${esc(cfg.endpoint)}" autocapitalize="off" autocorrect="off" spellcheck="false">`)}
+            ${field('共享密钥', `<input class="input" id="f-sync-key" type="text" value="${esc(cfg.key)}" autocapitalize="off" autocorrect="off" spellcheck="false">`)}
+            ${field('数据分组', `<input class="input" id="f-sync-sid" value="${esc(cfg.sid)}" autocapitalize="off" autocorrect="off" spellcheck="false">`)}
+            <button class="btn primary block" data-act="sync-save" style="margin-top:6px">保存并同步</button>
+          </div>
+        </details>
+      </div>
+
+      <div class="card flat small dim" style="margin-top:14px;line-height:1.8">
+        <p style="margin:0 0 6px">· 两台设备的改动都会自动合并，同一记录以更晚修改的为准。</p>
+        <p style="margin:0 0 6px">· 照片只同步缩略图（400px），另一台设备可正常查看；原图仍保留在拍摄的那台设备上。</p>
+        <p style="margin:0">· 本机编号：${esc(S.settings.syncDeviceId || '—')}</p>
+      </div>
+      <div style="height:8px"></div>`;
+  }
+};
+ACT['sync-now'] = () => { syncNow({ manual: true, force: true }); };
+ACT['sync-toggle'] = async () => {
+  await saveSyncCfg({ enabled: !syncCfg().enabled });
+  toast(syncCfg().enabled ? '已开启同步' : '已暂停同步');
+  render();
+  if (syncCfg().enabled) syncNow().catch(() => {});
+};
+ACT['sync-save'] = async () => {
+  const endpoint = fval('f-sync-endpoint'), key = fval('f-sync-key'), sid = fval('f-sync-sid') || 'default';
+  if (!endpoint || !key) return toast('服务地址和密钥不能为空');
+  await saveSyncCfg({ endpoint, key, sid, enabled: true });
+  toast('已保存，正在同步…');
+  render();
+  syncNow({ manual: true, force: true }).catch(() => {});
+};
 
 /* ---------- 兜底顶栏 ---------- */
 function defaultTop(title) { return topSimple(title); }
@@ -2823,7 +3100,7 @@ async function init() {
     if (!location.hash) history.replaceState(null, '', '#/home');
     render();
     if (MEMORY_MODE) setTimeout(() => toast('无法访问本地存储，本次数据不会被保存'), 500);
-    else maybeBackupReminder();
+    else { maybeBackupReminder(); initSync(); }
     registerSW();
   } catch (e) {
     app.innerHTML = `<div style="padding:48px 24px;color:var(--ink-2);line-height:1.9">
