@@ -15,6 +15,24 @@ signing-key-info.txt
 *.aab
 *.zip
 
+# 鸿蒙打包交付物（体积大，不入库）
+deveco-studio-*.exe
+
+# 设计源与图标工程（本地工作产物，体积大；成品图标 icon.svg / icon-*.png 已在根目录跟踪，无需再入库）
+design/
+
+# AI 工具本地产物（技能/插件缓存，非源码）
+.agents/
+.claude/
+.trae/
+
+# 含密钥的部署配置（SYNC_KEY 在里面，绝不入库）
+cloudbaserc.json
+
+# Capacitor 打包工程：依赖与拷贝产物不入库（android/ 工程本身要入库，其 .gitignore 已忽略构建输出）
+packaging/node_modules/
+packaging/www/
+
 # 系统文件
 .DS_Store
 Thumbs.db

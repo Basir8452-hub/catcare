@@ -1,0 +1,11 @@
+{
+  "appId": "io.github.basir8452_hub.twa",
+  "appName": "猫事 CatCare",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}

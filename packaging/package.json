@@ -1,0 +1,18 @@
+{
+  "name": "catcare-android",
+  "version": "1.0.1",
+  "private": true,
+  "description": "猫事 CatCare 本地离线 Android 壳（Capacitor）",
+  "scripts": {
+    "web": "node scripts/sync-web.mjs",
+    "sync": "node scripts/sync-web.mjs && cap sync android",
+    "open": "cap open android"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0"
+  },
+  "dependencies": {
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/android": "^7.0.0"
+  }
+}

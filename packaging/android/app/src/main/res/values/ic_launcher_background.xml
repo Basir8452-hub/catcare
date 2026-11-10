@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 纯色背景方案：想省掉 ic_launcher_background.png 时，
+     把 mipmap-anydpi-v26/ic_launcher.xml 里的 background 改成
+     android:drawable="@color/ic_launcher_background" 即可。 -->
+<resources>
+    <color name="ic_launcher_background">#C4622D</color>
+</resources>
