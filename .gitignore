@@ -12,6 +12,7 @@ signing-key-info.txt
 # PWABuilder 打包产物（含签名密钥与口令，绝不入库）
 *Google Play package/
 *.apk
+*.apk.idsig
 *.aab
 *.zip
 

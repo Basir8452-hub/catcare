@@ -1,4 +1,4 @@
-# 本地签名：把 CI 产出的未签名 APK 用现有 keystore 签成可覆盖安装的 APK。
+﻿# 本地签名：把 CI 产出的未签名 APK 用现有 keystore 签成可覆盖安装的 APK。
 # 密钥始终留在本机，不上传任何地方。
 #
 # 用法：
@@ -30,7 +30,14 @@ foreach ($tool in @($zipalign, $apksigner)) {
   }
 }
 if (-not $OutApk) {
-  $OutApk = Join-Path $repoRoot 'releases\猫事 CatCare (本地版).apk'
+  # 版本号取自 build.gradle 的 versionName，统一归档到 releases\apk\ 下的版本化文件名。
+  $gradleFile = Join-Path $repoRoot 'packaging\android\app\build.gradle'
+  $version = 'unknown'
+  if (Test-Path $gradleFile) {
+    $m = [regex]::Match((Get-Content $gradleFile -Raw), 'versionName\s+"([^"]+)"')
+    if ($m.Success) { $version = $m.Groups[1].Value }
+  }
+  $OutApk = Join-Path $repoRoot "releases\apk\猫事CatCare-v$version-离线版.apk"
 }
 
 $env:JAVA_HOME = $javaHome
