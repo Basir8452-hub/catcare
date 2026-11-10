@@ -1116,11 +1116,11 @@ function bindTopbar() {
 }
 
 /* ===================== 通用 UI 片段 ===================== */
-function emptyState(iconName, title, desc, btnText, act, artName) {
+function emptyState(iconName, title, desc, btnText, act, artName, actType) {
   return `<div class="empty">
     ${artName ? `<div class="ico art">${art(artName)}</div>` : `<div class="ico">${icon(iconName, 'width:30px;height:30px')}</div>`}
     <div class="h">${esc(title)}</div><p>${esc(desc)}</p>
-    ${btnText ? `<button class="btn primary" data-act="${act}">${esc(btnText)}</button>` : ''}
+    ${btnText ? `<button class="btn primary" data-act="${act}"${actType ? ` data-type="${actType}"` : ''}>${esc(btnText)}</button>` : ''}
   </div>`;
 }
 function field(label, inner, hint) {
@@ -1501,7 +1501,7 @@ function healthViewHTML() {
     .filter(h => st === 'all' || h.type === st)
     .sort(byDateDesc);
   return items.length ? `<div class="list">${items.map(healthRowHTML).join('')}</div>`
-    : emptyState('heart', st === 'all' ? '还没有健康记录' : `没有${HTYPES[st].n}记录`, '疫苗、驱虫、体重、就医都记在这里，到点自动提醒你。', '添加记录', 'add-health', 'sleepy');
+    : emptyState('heart', st === 'all' ? '还没有健康记录' : `没有${HTYPES[st].n}记录`, '疫苗、驱虫、体重、就医都记在这里，到点自动提醒你。', '添加记录', 'add-health', 'sleepy', st === 'all' ? '' : st);
 }
 function healthRowHTML(h) {
   const meta = HTYPES[h.type] || { n: '记录', i: 'dot', c: '' };
